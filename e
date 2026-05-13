@@ -8951,3 +8951,5 @@ do -- Library
         end
     end
 end
+getgenv().Library = Library
+return Library
