@@ -823,7 +823,7 @@ do -- Library
             ["Dark Gradient"] = FromRGB(211, 211, 211),    -- Subtle dark gradient
             ["Inactive Text"] = FromRGB(150, 150, 150), -- Softer gray for inactive text
             ["Element"] = FromRGB(33, 32, 35),          -- Element background matches panel
-            ["Accent"] = FromRGB(236,23,23),          -- Blue accent (like "bronx")
+            ["Accent"] = FromRGB(0, 150, 255),          -- Blue accent (like "bronx")
             ["Border"] = FromRGB(40, 44, 52)            -- Slightly lighter border for contrast
         },
 
