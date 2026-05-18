@@ -121,10 +121,10 @@ do -- Library
         },
 
         Folders = {
-            Directory = "midnight",
-            Configs = "midnightconfigs",
-            Assets = "valary/Assets",
-            Themes = "valary/Themes"
+            Directory = "midnightanalsex",
+            Configs = "midnightanalsex/Configs",
+            Assets = "midnightanalsex/Assets",
+            Themes = "midnightanalsex/Themes"
         },
 
         Images = { -- you're welcome to reupload the images and replace it with your own links
