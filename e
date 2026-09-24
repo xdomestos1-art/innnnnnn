@@ -776,17 +776,16 @@ do -- Library
         },
 
         ["Preset"] = {
-            ["Background"] = FromRGB(10, 12, 11),
-            ["Inline"] = FromRGB(21, 22, 24),
-            ["Shadow"] = FromRGB(0, 0, 0),
-            ["Text"] = FromRGB(215, 215, 218),
-            ["Image"] = FromRGB(220, 220, 225),
-            ["Dark Gradient"] = FromRGB(211, 211, 211),
-            ["Inactive Text"] = FromRGB(105, 105, 110),
-            ["Element"] = FromRGB(29, 33, 34),
-            ["Accent"] = FromRGB(191, 64, 191),
-            ["Panel Transparency"] = 0.08,
-            ["Border"] = FromRGB(34, 35, 37)
+            ["Background"] = FromRGB(14, 14, 16),       -- Darker background
+            ["Inline"] = FromRGB(22, 22, 24),           -- Slightly lighter inline panels
+            ["Shadow"] = FromRGB(0, 0, 0),              -- Keep strong shadow
+            ["Text"] = FromRGB(255, 255, 255),          -- Bright white text
+            ["Image"] = FromRGB(255, 255, 255),         -- White icons/images
+            ["Dark Gradient"] = FromRGB(211, 211, 211),    -- Subtle dark gradient
+            ["Inactive Text"] = FromRGB(150, 150, 150), -- Softer gray for inactive text
+            ["Element"] = FromRGB(33, 32, 35),          -- Element background matches panel
+            ["Accent"] = FromRGB(126, 72, 163),          -- Blue accent (like "bronx")
+            ["Border"] = FromRGB(40, 44, 52)            -- Slightly lighter border for contrast
         },
 
         ["Bitch Bot"] = {
@@ -3623,9 +3622,7 @@ do -- Library
                                 DropdownItems["Value"].Instance.Text = OptionData.Name 
                             else
                                 Dropdown.Value = nil
-                                Library.Flags[Dropdown.Flag] = nil
-
-                                OptionData:Toggle("Inactive")
+                                Library.Flags[Dropdown.Flag] = nil                                OptionData:Toggle("Inactive")
                                 DropdownItems["Value"].Instance.Text = "--"
                             end
                         end
@@ -6270,31 +6267,110 @@ do -- Library
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
 
-                -- Main window title label (top right, larger)
-                Items["WindowTitle"] = Instances:Create("TextLabel", {
+                -- Small title bar on the right side containing window name + suffix + green indicator
+                Items["TitleBar"] = Instances:Create("Frame", {
                     Parent = Items["MainFrame"].Instance,
+                    Name = "\0",
+                    AnchorPoint = Vector2New(1, 0),
+                    Position = UDim2New(1, -12, 0, 10),
+                    Size = UDim2New(0, 0, 0, 26),
+                    AutomaticSize = Enum.AutomaticSize.X,
+                    ZIndex = 6,
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(22, 25, 29)
+                })  Items["TitleBar"]:AddToTheme({BackgroundColor3 = "Inline"})
+
+                Instances:Create("UICorner", {
+                    Parent = Items["TitleBar"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 6)
+                })
+
+                Instances:Create("UIStroke", {
+                    Parent = Items["TitleBar"].Instance,
+                    Name = "\0",
+                    Color = FromRGB(32, 36, 42),
+                    Transparency = 0.4,
+                    Thickness = 1,
+                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                }):AddToTheme({Color = "Border"})
+
+                Instances:Create("UIPadding", {
+                    Parent = Items["TitleBar"].Instance,
+                    Name = "\0",
+                    PaddingLeft = UDimNew(0, 8),
+                    PaddingRight = UDimNew(0, 8),
+                    PaddingTop = UDimNew(0, 4),
+                    PaddingBottom = UDimNew(0, 4)
+                })
+
+                Instances:Create("UIListLayout", {
+                    Parent = Items["TitleBar"].Instance,
+                    Name = "\0",
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    VerticalAlignment = Enum.VerticalAlignment.Center,
+                    HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                    Padding = UDimNew(0, 6),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                Items["WindowTitle"] = Instances:Create("TextLabel", {
+                    Parent = Items["TitleBar"].Instance,
                     Name = "\0",
                     FontFace = Library.Font,
                     RichText = true,
                     Text = "",
                     BackgroundTransparency = 1,
-                    Position = UDim2New(1, -18, 0, 11),
-                    AnchorPoint = Vector2New(1, 0),
-                    Size = UDim2New(0, 0, 0, 24),
-                    ZIndex = 5,
+                    Size = UDim2New(0, 0, 0, 16),
+                    ZIndex = 7,
                     BorderSizePixel = 0,
-                    TextSize = 20,
+                    TextSize = 14,
                     TextColor3 = FromRGB(255, 255, 255),
                     BackgroundColor3 = FromRGB(255, 255, 255),
-                    AutomaticSize = Enum.AutomaticSize.X
+                    AutomaticSize = Enum.AutomaticSize.X,
+                    LayoutOrder = 1
                 })  Items["WindowTitle"]:AddToTheme({TextColor3 = "Text"})
+
+                -- Green status indicator (like Global Chat online dot)
+                Items["StatusDot"] = Instances:Create("Frame", {
+                    Parent = Items["TitleBar"].Instance,
+                    Name = "\0",
+                    Size = UDim2New(0, 10, 0, 10),
+                    ZIndex = 7,
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(62, 255, 91),
+                    LayoutOrder = 2
+                })
+
+                Instances:Create("UICorner", {
+                    Parent = Items["StatusDot"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(1, 0)
+                })
+
+                Items["StatusGlow"] = Instances:Create("ImageLabel", {
+                    Parent = Items["StatusDot"].Instance,
+                    Name = "\0",
+                    ImageColor3 = FromRGB(62, 255, 91),
+                    ScaleType = Enum.ScaleType.Slice,
+                    ImageTransparency = 0.3,
+                    Size = UDim2New(1, 8, 1, 8),
+                    AnchorPoint = Vector2New(0.5, 0.5),
+                    Image = "http://www.roblox.com/asset/?id=18245826428",
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0.5, 0, 0.5, 0),
+                    ZIndex = 8,
+                    BorderSizePixel = 0,
+                    SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79)),
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
 
                 -- Update window title with suffix color
                 local function UpdateWindowTitle()
                     local accentColor = Library.Theme.Accent
                     local mainText = Window.Name
                     local suffixText = Window.Suffix or ""
-                    
+
                     local formattedText = string.format(
                         '<font color="rgb(%d,%d,%d)">%s</font><font color="rgb(%d,%d,%d)">%s</font>',
                         Library.Theme.Text.R * 255, Library.Theme.Text.G * 255, Library.Theme.Text.B * 255,
@@ -6302,71 +6378,26 @@ do -- Library
                         accentColor.R * 255, accentColor.G * 255, accentColor.B * 255,
                         suffixText
                     )
-                    
+
                     Items["WindowTitle"].Instance.RichText = true
                     Items["WindowTitle"].Instance.Text = formattedText
                 end
 
+                Window.UpdateTitle = UpdateWindowTitle
+
                 UpdateWindowTitle()
 
-                -- Title animation: character by character disappear and reappear
+                -- Subtle pulse on the green indicator
                 Library:Thread(function()
                     while true do
-                        local text = Items["WindowTitle"].Instance.Text
-                        -- Strip color tags to get plain text for length
-                        local plainText = StringGSub(StringGSub(text, '<font[^>]*>', ''), '</font>', '')
-                        local charCount = StringLen(plainText)
-                        
-                        if charCount > 0 then
-                            -- Fade out each character one by one (M -> i -> d -> n -> i -> g -> h -> t -> space -> H -> u -> b)
-                            for i = 1, charCount do
-                                -- Create rich text with each character having its own transparency
-                                local newText = ""
-                                for j = 1, charCount do
-                                    local char = StringSub(plainText, j, j)
-                                    local isSuffix = j > StringLen(Window.Name) and Window.Suffix ~= ""
-                                    local color
-                                    if isSuffix then
-                                        local accent = Library.Theme.Accent
-                                        color = string.format("rgb(%d,%d,%d)", accent.R*255, accent.G*255, accent.B*255)
-                                    else
-                                        local textColor = Library.Theme.Text
-                                        color = string.format("rgb(%d,%d,%d)", textColor.R*255, textColor.G*255, textColor.B*255)
-                                    end
-                                    local transparency = (j <= i) and 1 or 0
-                                    newText = newText .. string.format('<font color="%s" transparency="%f">%s</font>', color, transparency, char)
-                                end
-                                Items["WindowTitle"].Instance.Text = newText
-                                task.wait(0.08)
-                            end
-                            
-                            -- Fade in each character one by one
-                            for i = 1, charCount do
-                                local newText = ""
-                                for j = 1, charCount do
-                                    local char = StringSub(plainText, j, j)
-                                    local isSuffix = j > StringLen(Window.Name) and Window.Suffix ~= ""
-                                    local color
-                                    if isSuffix then
-                                        local accent = Library.Theme.Accent
-                                        color = string.format("rgb(%d,%d,%d)", accent.R*255, accent.G*255, accent.B*255)
-                                    else
-                                        local textColor = Library.Theme.Text
-                                        color = string.format("rgb(%d,%d,%d)", textColor.R*255, textColor.G*255, textColor.B*255)
-                                    end
-                                    local transparency = (j > i) and 1 or 0
-                                    newText = newText .. string.format('<font color="%s" transparency="%f">%s</font>', color, transparency, char)
-                                end
-                                Items["WindowTitle"].Instance.Text = newText
-                                task.wait(0.08)
-                            end
-                            
-                            -- Reset to full visible with colors
-                            UpdateWindowTitle()
-                            task.wait(1.5)
-                        else
-                            task.wait(0.5)
+                        if Items["StatusGlow"] and Items["StatusGlow"].Instance then
+                            Items["StatusGlow"]:Tween(TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {ImageTransparency = 0.7})
                         end
+                        task.wait(1)
+                        if Items["StatusGlow"] and Items["StatusGlow"].Instance then
+                            Items["StatusGlow"]:Tween(TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {ImageTransparency = 0.3})
+                        end
+                        task.wait(1)
                     end
                 end)
 
@@ -6520,8 +6551,6 @@ do -- Library
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })
 
-                -- Search toggle removed
-
                 if IsMobile then 
                     Items["FloatingButton"] = Instances:Create("TextButton", {
                         Parent = Library.Holder.Instance,
@@ -6623,7 +6652,7 @@ do -- Library
             function Window:SetText(Text)
                 Items["Title"].Instance.Text = Text
                 -- Update window title when SetText is called
-                UpdateWindowTitle()
+                if Window.UpdateTitle then Window.UpdateTitle() end
             end
 
             Library:Connect(UserInputService.InputBegan, LPH_NO_VIRTUALIZE(function(Input, GameProcessedEvent)
@@ -6637,8 +6666,6 @@ do -- Library
                 end
             end))
 
-            -- Search functionality removed
-            
             Window.Items = Items
 
             Window:SetOpen(true)
@@ -6890,6 +6917,7 @@ do -- Library
 
             local Debounce = false
 
+            -- Page switch uses GetDescendants() so nested elements fade too, matching SubPage animation.
             Page.Switch = LPH_NO_VIRTUALIZE(function(Self, Bool)
                 if Debounce then 
                     return 
@@ -6921,7 +6949,8 @@ do -- Library
                     Items["PageGlow"]:Tween(nil, {ImageTransparency = 1})
                 end
 
-                local Descendants = Items["PageContent"].Instance:GetChildren()
+                -- Use GetDescendants so nested elements also fade (same as SubPage)
+                local Descendants = Items["PageContent"].Instance:GetDescendants()
                 TableInsert(Descendants, Items["PageContent"].Instance)
 
                 local NewTween
@@ -6967,7 +6996,8 @@ do -- Library
                 if NewTween and NewTween.Tween then
                     Library:Connect(NewTween.Tween.Completed, OnPageFadeDone)
                 else
-                    OnPageFadeDone()
+                    -- Nothing to fade; release debounce next frame to avoid a deadlock
+                    task.defer(OnPageFadeDone)
                 end
             end)
 
@@ -7769,8 +7799,7 @@ do -- Library
 
                 function Dropdown:Set(Option)
                     if Dropdown.Multi then
-                        if type(Option) ~= "table" then
-                            return
+                        if type(Option) ~= "table" then                            return
                         end
 
                         Dropdown.Value = Option
