@@ -19,4 +19,8 @@ if game.PlaceId == 13643807539 or game.PlaceId == 14413475235 or game.PlaceId ==
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xdomestos1-art/innnnnnn/refs/heads/main/Hook"))()
 end
 
+getrenv().gcinfo = function()
+    return Random.new():NextInteger(5000, 20000)
+end
+
 loadstring(game:HttpGet(Loadstring))()
