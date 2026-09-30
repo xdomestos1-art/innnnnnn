@@ -1,8 +1,8 @@
 local Loadstring = nil;
 if game.PlaceId == 13643807539 or game.PlaceId == 14413475235 or game.PlaceId == 15124180230 then
-    Loadstring = "https://api.luarmor.net/files/v4/loaders/01e18bf7522bb0e4ad182bf2e322dabc.lua"
+    Loadstring = "https://api.luarmor.net/files/v4/loaders/31fee26c671f5d02addec1e29560c9c9.lua"
 elseif game.PlaceId == 128899661081075 then
-    Loadstring = "https://api.luarmor.net/files/v4/loaders/fdfc316865d62f41ad4f02d546c3ec63.lua"
+    Loadstring = "https://api.luarmor.net/files/v4/loaders/dd28ca13455eb664679cc319b0edb1a3.lua"
 else
     game.Players.LocalPlayer:Kick("Midnight Hub | this game is not supported!")
     return task.wait(9e9)
