@@ -1,0 +1,30 @@
+local Loadstring = nil;
+if game.PlaceId == 13643807539 or game.PlaceId == 14413475235 or game.PlaceId == 15124180230 then
+    Loadstring = "https://api.luarmor.net/files/v4/loaders/01e18bf7522bb0e4ad182bf2e322dabc.lua"
+elseif game.PlaceId == 128899661081075 then
+    Loadstring = "https://api.luarmor.net/files/v4/loaders/fdfc316865d62f41ad4f02d546c3ec63.lua"
+else
+    game.Players.LocalPlayer:Kick("Midnight Hub | this game is not supported!")
+    return task.wait(9e9)
+end
+
+getgenv()["SCRIPT_KEY"] = script_key
+
+if not getgenv()["SCRIPT_KEY"] then
+    game.Players.LocalPlayer:Kick("Midnight Hub | key not found!")
+    return task.wait(9e9)
+end
+
+if game.PlaceId == 13643807539 or game.PlaceId == 14413475235 or game.PlaceId == 15124180230 then
+    local Hyphon_4284 = filtergc("function", {StartLine = 4284, IgnoreExecutor = true}, true)
+
+    pcall(debug.setupvalue, Hyphon_4284, 4, 0/0)
+
+    task.spawn(function()
+        while game.GetService("RunService").Stepped:Wait() do
+            pcall(debug.setupvalue, Hyphon_4284, 4, 0/0)
+        end
+    end)
+end
+
+loadstring(game:HttpGet(Loadstring))()
