@@ -3,7 +3,7 @@ local Hyphon_4284 = filtergc("function", {StartLine = 4284, IgnoreExecutor = tru
 pcall(debug.setupvalue, Hyphon_4284, 4, 0/0)
 
 task.spawn(function()
-    while game.GetService("RunService").Stepped:Wait() do
+    while game:GetService("RunService").Stepped:Wait() do
         pcall(debug.setupvalue, Hyphon_4284, 4, 0/0)
     end
 end)
