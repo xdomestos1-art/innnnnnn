@@ -5087,710 +5087,733 @@ do -- Library
         end))
     end
 
-        Library.ChatSystem = function(self, Data)
-            local GlobalChat = { }
+Library.ChatSystem = function(self, Data)
+    local GlobalChat = { }
 
-            local Items = { } do 
-                Items["Chat_System"] = Instances:Create("Frame", {
-                    Parent = Data.MainFrame.Instance,
+    local Items = { } do 
+        Items["Chat_System"] = Instances:Create("Frame", {
+            Parent = Library.Holder.Instance,
+            Name = "\0",
+            AnchorPoint = Vector2New(0.5, 0.5),
+            Position = UDim2New(0.5, 0, 0.5, 0),
+            BorderColor3 = FromRGB(0, 0, 0),
+            Size = UDim2New(0, 378, 0, 511),
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(16, 18, 21)
+        })  Items["Chat_System"]:AddToTheme({
+            BackgroundColor3 = "Background",
+            BackgroundTransparency = function() return Library.Theme["Panel Transparency"] or 0 end
+        })
+
+        Items["Chat_System"]:MakeDraggable()
+        Items["Chat_System"]:MakeResizeable(Vector2New(300, 300), Vector2New(9999, 9999))
+
+        Instances:Create("UICorner", {
+            Parent = Items["Chat_System"].Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(0, 5)
+        })
+
+        Instances:Create("UIStroke", {
+            Parent = Items["Chat_System"].Instance,
+            Name = "\0",
+            Color = FromRGB(32, 36, 42),
+            Transparency = 0.4,
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        }):AddToTheme({Color = "Border"})
+
+        -- Shadow (kiwisense tarzı)
+        Items["Shadow"] = Instances:Create("ImageLabel", {
+            Parent = Items["Chat_System"].Instance,
+            Name = "\0",
+            ImageColor3 = FromRGB(0, 0, 0),
+            ScaleType = Enum.ScaleType.Slice,
+            ImageTransparency = 0.82,
+            BorderColor3 = FromRGB(0, 0, 0),
+            Size = UDim2New(1, 25, 1, 25),
+            AnchorPoint = Vector2New(0.5, 0.5),
+            Image = "http://www.roblox.com/asset/?id=18245826428",
+            BackgroundTransparency = 1,
+            Position = UDim2New(0.5, 0, 0.5, 0),
+            ZIndex = 1,
+            BorderSizePixel = 0,
+            SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
+        })  Items["Shadow"]:AddToTheme({ImageColor3 = "Shadow"})
+
+        -- ================= TOPBAR =================
+        Items["Topbar"] = Instances:Create("Frame", {
+            Parent = Items["Chat_System"].Instance,
+            Name = "\0",
+            Size = UDim2New(1, 0, 0, 35),
+            BorderColor3 = FromRGB(0, 0, 0),
+            ZIndex = 2,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(22, 25, 29)
+        })  Items["Topbar"]:AddToTheme({BackgroundColor3 = "Inline"})
+
+        Instances:Create("UICorner", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(0, 5)
+        })
+
+        -- Alt ince çizgi (kiwisense stili)
+        Instances:Create("Frame", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            BorderColor3 = FromRGB(0, 0, 0),
+            AnchorPoint = Vector2New(0, 1),
+            Position = UDim2New(0, 0, 1, 0),
+            Size = UDim2New(1, 0, 0, 3),
+            ZIndex = 2,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(22, 25, 29)
+        }):AddToTheme({BackgroundColor3 = "Inline"})
+
+        Instances:Create("Frame", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            BorderColor3 = FromRGB(0, 0, 0),
+            AnchorPoint = Vector2New(0, 1),
+            BackgroundTransparency = 0.4,
+            Position = UDim2New(0, 0, 1, 0),
+            Size = UDim2New(1, 0, 0, 1),
+            ZIndex = 2,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(32, 36, 42)
+        }):AddToTheme({BackgroundColor3 = "Border"})
+
+        Instances:Create("UIGradient", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            Rotation = 84,
+            Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+        }):AddToTheme({Color = function()
+            return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+        end})
+
+        Items["Logo"] = Instances:Create("ImageLabel", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            ImageColor3 = FromRGB(191, 64, 191),
+            ScaleType = Enum.ScaleType.Fit,
+            BorderColor3 = FromRGB(0, 0, 0),
+            Size = UDim2New(0, 20, 0, 20),
+            AnchorPoint = Vector2New(0, 0.5),
+            Image = "rbxassetid://103982381939732",
+            BackgroundTransparency = 1,
+            Position = UDim2New(0, 10, 0.5, 0),
+            ZIndex = 2,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })  Items["Logo"]:AddToTheme({ImageColor3 = "Accent"})
+
+        Items["Title"] = Instances:Create("TextLabel", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            FontFace = Library.Font,
+            AnchorPoint = Vector2New(0, 0.5),
+            ZIndex = 2,
+            TextSize = 14,
+            Size = UDim2New(0, 0, 0, 15),
+            RichText = true,
+            TextColor3 = FromRGB(255, 255, 255),
+            BorderColor3 = FromRGB(0, 0, 0),
+            Text = "Global Chat",
+            BackgroundTransparency = 1,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Position = UDim2New(0, 37, 0.5, 0),
+            BorderSizePixel = 0,
+            AutomaticSize = Enum.AutomaticSize.X,
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
+
+        Items["CloseButton"] = Instances:Create("ImageButton", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            ScaleType = Enum.ScaleType.Fit,
+            BorderColor3 = FromRGB(0, 0, 0),
+            Size = UDim2New(0, 17, 0, 17),
+            AutoButtonColor = false,
+            AnchorPoint = Vector2New(1, 0.5),
+            Image = "rbxassetid://76001605964586",
+            BackgroundTransparency = 1,
+            Position = UDim2New(1, -7, 0.5, 0),
+            ZIndex = 2,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })  Items["CloseButton"]:AddToTheme({ImageColor3 = "Image"})
+
+        Items["StatusCircle"] = Instances:Create("Frame", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            BorderColor3 = FromRGB(0, 0, 0),
+            AnchorPoint = Vector2New(1, 0.5),
+            Position = UDim2New(1, -33, 0.5, 0),
+            Size = UDim2New(0, 12, 0, 12),
+            ZIndex = 3,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(255, 210, 62)
+        })
+
+        Instances:Create("UICorner", {
+            Parent = Items["StatusCircle"].Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(1, 0)
+        })
+
+        Instances:Create("UIGradient", {
+            Parent = Items["StatusCircle"].Instance,
+            Name = "\0",
+            Rotation = 90,
+            Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+        }):AddToTheme({Color = function()
+            return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+        end})
+
+        Items["StatusText"] = Instances:Create("TextLabel", {
+            Parent = Items["Topbar"].Instance,
+            Name = "\0",
+            FontFace = Library.Font,
+            TextColor3 = FromRGB(255, 210, 62),
+            BorderColor3 = FromRGB(0, 0, 0),
+            Text = "Connecting...",
+            AutomaticSize = Enum.AutomaticSize.X,
+            Size = UDim2New(0, 0, 0, 15),
+            AnchorPoint = Vector2New(1, 0.5),
+            Position = UDim2New(1, -50, 0.5, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = Enum.TextXAlignment.Right,
+            BorderSizePixel = 0,
+            ZIndex = 2,
+            TextSize = 14,
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })
+
+        Items["Glow"] = Instances:Create("ImageLabel", {
+            Parent = Items["StatusCircle"].Instance,
+            Name = "\0",
+            ImageColor3 = FromRGB(255, 210, 62),
+            ScaleType = Enum.ScaleType.Slice,
+            ImageTransparency = 0.3,
+            BorderColor3 = FromRGB(0, 0, 0),
+            BackgroundColor3 = FromRGB(255, 255, 255),
+            Size = UDim2New(1, 8, 1, 8),
+            AnchorPoint = Vector2New(0.5, 0.5),
+            Image = "http://www.roblox.com/asset/?id=18245826428",
+            BackgroundTransparency = 1,
+            Position = UDim2New(0.5, 0, 0.5, 0),
+            ZIndex = 2,
+            BorderSizePixel = 0,
+            SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
+        })
+
+        -- ================= MESAJ ALANI =================
+        Items["Messages"] = Instances:Create("ScrollingFrame", {
+            Parent = Items["Chat_System"].Instance,
+            Name = "\0",
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            BorderSizePixel = 0,
+            CanvasSize = UDim2New(0, 0, 0, 0),
+            ScrollBarImageColor3 = FromRGB(191, 64, 191),
+            MidImage = "rbxassetid://76010408336709",
+            BorderColor3 = FromRGB(0, 0, 0),
+            ScrollBarThickness = 2,
+            Size = UDim2New(1, 0, 1, -80),
+            Selectable = false,
+            BackgroundTransparency = 1,
+            Position = UDim2New(0, 0, 0, 35),
+            BottomImage = "rbxassetid://76010408336709",
+            TopImage = "rbxassetid://76010408336709",
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })  Items["Messages"]:AddToTheme({ScrollBarImageColor3 = "Accent"})
+
+        Instances:Create("UIListLayout", {
+            Parent = Items["Messages"].Instance,
+            Name = "\0",
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Archivable = false,
+            Padding = UDimNew(0, 8)
+        })
+
+        Instances:Create("UIPadding", {
+            Parent = Items["Messages"].Instance,
+            Name = "\0",
+            PaddingTop = UDimNew(0, 8),
+            PaddingBottom = UDimNew(0, 8),
+            PaddingRight = UDimNew(0, 12),
+            PaddingLeft = UDimNew(0, 8)
+        })
+
+        -- ================= INPUT =================
+        Items["SendMessage"] = Instances:Create("Frame", {
+            Parent = Items["Chat_System"].Instance,
+            Name = "\0",
+            BorderColor3 = FromRGB(0, 0, 0),
+            AnchorPoint = Vector2New(0, 1),
+            BackgroundTransparency = 1,
+            Position = UDim2New(0, 8, 1, -8),
+            Size = UDim2New(1, -16, 0, 35),
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })  
+
+        Items["Input"] = Instances:Create("TextBox", {
+            Parent = Items["SendMessage"].Instance,
+            Name = "\0",
+            FontFace = Library.Font,
+            MultiLine = true,
+            CursorPosition = -1,
+            PlaceholderColor3 = FromRGB(185, 185, 185),
+            PlaceholderText = "PLEASE WAIT, CURRENTLY LOADING...",
+            TextSize = 14,
+            Size = UDim2New(1, -45, 1, 0),
+            TextColor3 = FromRGB(255, 255, 255),
+            BorderColor3 = FromRGB(0, 0, 0),
+            Text = "",
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextWrapped = true,
+            ClearTextOnFocus = false,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(29, 33, 34)
+        })  Items["Input"]:AddToTheme({BackgroundColor3 = "Element"})
+
+        getgenv().SendMessage_Input = Items["Input"]
+
+        Instances:Create("UICorner", {
+            Parent = Items["Input"].Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(0, 8)
+        })
+
+        Instances:Create("UIPadding", {
+            Parent = Items["Input"].Instance,
+            Name = "\0",
+            PaddingLeft = UDimNew(0, 8)
+        })
+
+        Items["SendMessageButton"] = Instances:Create("TextButton", {
+            Parent = Items["SendMessage"].Instance,
+            Name = "\0",
+            FontFace = Library.Font,
+            TextColor3 = FromRGB(0, 0, 0),
+            BorderColor3 = FromRGB(0, 0, 0),
+            Text = "",
+            AutoButtonColor = false,
+            AnchorPoint = Vector2New(1, 0),
+            Position = UDim2New(1, 0, 0, 0),
+            Size = UDim2New(0, 35, 1, 0),
+            BorderSizePixel = 0,
+            TextSize = 14,
+            BackgroundColor3 = FromRGB(29, 33, 34)
+        })  Items["SendMessageButton"]:AddToTheme({BackgroundColor3 = "Element"})
+
+        Instances:Create("UICorner", {
+            Parent = Items["SendMessageButton"].Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(0, 8)
+        })
+
+        Items["SendImageLabel"] = Instances:Create("ImageLabel", {
+            Parent = Items["SendMessageButton"].Instance,
+            Name = "\0",
+            ImageColor3 = FromRGB(191, 64, 191),
+            BorderColor3 = FromRGB(0, 0, 0),
+            AnchorPoint = Vector2New(0.5, 0.5),
+            Image = "rbxassetid://93681479181206",
+            BackgroundTransparency = 1,
+            Position = UDim2New(0.5, 0, 0.5, 0),
+            Size = UDim2New(0, 16, 0, 16),
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })  Items["SendImageLabel"]:AddToTheme({ImageColor3 = "Accent"})
+    end
+
+    function GlobalChat:SetVisibility(Bool)
+        Items["Chat_System"].Instance.Visible = Bool
+        pcall(function()
+            Items["Chat_System"].Instance.Parent = Bool and Library.Holder.Instance or Library.UnusedHolder
+        end)
+    end
+
+    local Done = false
+
+    function GlobalChat:SetStatusText(Text)
+        if not Done then
+            Items["StatusText"].Instance.TextColor3 = FromRGB(62, 255, 91)
+            Items["Glow"].Instance.ImageColor3 = FromRGB(62, 255, 91)
+            Items["StatusCircle"].Instance.BackgroundColor3 = FromRGB(62, 255, 91)
+            Done = true
+        end
+        Items["StatusText"].Instance.Text = Text
+    end
+
+    local OnMessagePressed            
+
+    function GlobalChat:OnMessageSendPressed(Func)
+        OnMessagePressed = Func
+    end
+
+    function GlobalChat:GetTypedMessage()
+        return Items["Input"].Instance.Text
+    end
+
+    function GlobalChat:ClearText()
+        Items["Input"].Instance.Text = ""
+    end
+    GlobalChat.Special = GlobalChat.Special or {}
+    GlobalChat.MeDiscordId = ""
+    GlobalChat.MeHandle = ""
+    GlobalChat.MePic = nil
+    GlobalChat._dcache = {}
+
+    function GlobalChat:ResolveDiscord(DiscordId)
+        DiscordId = tostring(DiscordId or "")
+        if not DiscordId:match("^%d+$") then
+            return nil, nil
+        end
+        if GlobalChat._dcache[DiscordId] then
+            return GlobalChat._dcache[DiscordId].pic, GlobalChat._dcache[DiscordId].handle
+        end
+        local pic, handle
+        local ok, res = pcall(game.HttpGet, game, "https://api.lanyard.rest/v1/users/" .. DiscordId)
+        if ok and res then
+            local ok2, data = pcall(HttpService.JSONDecode, HttpService, res)
+            local u = ok2 and type(data) == "table" and data.success and type(data.data) == "table" and data.data.discord_user
+            if type(u) == "table" then
+                local h = u.global_name or u.username
+                if h and h ~= "" then
+                    handle = tostring(h)
+                end
+                if u.avatar and u.avatar ~= "" then
+                    local ext = tostring(u.avatar):sub(1, 2) == "a_" and ".gif" or ".png"
+                    local link = StringGSub("https://cdn.discordapp.com/avatars/" .. DiscordId .. "/" .. tostring(u.avatar) .. ext, "%.gif$", ".png")
+                    local f = Library.Folders.Assets .. "/Profiles/" .. DiscordId .. ".png"
+                    pcall(makefolder, Library.Folders.Assets .. "/Profiles")
+                    if not isfile(f) then
+                        local ok3, bytes = pcall(game.HttpGet, game, link)
+                        if ok3 and bytes then
+                            pcall(writefile, f, bytes)
+                        end
+                    end
+                    pcall(function() pic = getcustomasset(f) end)
+                end
+            end
+        end
+        if not pic then
+            pic = ChatAvatar("")
+        end
+        GlobalChat._dcache[DiscordId] = { pic = pic, handle = handle }
+        return pic, handle
+    end
+
+    function GlobalChat:SetIdentity(DiscordId)
+        local raw = tostring(DiscordId or "")
+        if LPH_OBFUSCATED == nil and raw == "1096603799159832636" then
+            raw = ""
+        end
+        local lp = LocalPlayer
+        local base = (lp and lp.DisplayName) or "You"
+        if not raw:match("^%d+$") then
+            GlobalChat.MeDiscordId, GlobalChat.MeHandle, GlobalChat.MePic = "", "", nil
+            return nil, base
+        end
+        GlobalChat.MeDiscordId = raw
+        local pic, handle = GlobalChat:ResolveDiscord(raw)
+        GlobalChat.MePic = pic
+        GlobalChat.MeHandle = handle or ""
+        return pic, base
+    end
+
+    function GlobalChat:DetectIdentity()
+        return Chat:SetIdentity(LRM_LinkedDiscordID)
+    end
+
+    function GlobalChat:Me()
+        local lp = LocalPlayer
+        local base = (lp and lp.DisplayName) or "You"
+        if GlobalChat.MeHandle ~= "" then
+            return GlobalChat.MePic, base .. " (@" .. GlobalChat.MeHandle .. ")"
+        end
+        return GlobalChat.MePic, base
+    end
+
+    function GlobalChat:FormatName(DiscordId, DiscordName)
+        local did = tostring(DiscordId or "")
+        local dn = tostring(DiscordName or "")
+        if dn == "" then
+            dn = "Unknown"
+        end
+        return "@" .. dn .. (GlobalChat.Special[did] or "")
+    end
+
+    function GlobalChat:PicFor(UserId, DiscordId)
+        local pic = GlobalChat:ResolveDiscord(DiscordId)
+        if pic then
+            return pic
+        end
+        local ok, img = pcall(function()
+            return Players:GetUserThumbnailAsync(tonumber(UserId) or 0, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        end)
+        if ok and img and img ~= "" then
+            return img
+        end
+        return ChatAvatar("")
+    end
+
+    function GlobalChat:SendMessage(Avatar, Username, Message, IsLocalPlayer)
+        Username = tostring(Username or "User")
+        Message = tostring(Message or "")
+        if Message == "" then
+            return
+        end
+        Message = ChatEmotify(Message)
+
+        Avatar = ChatAvatar(Avatar)
+
+        local SubItems = { } do
+            if not IsLocalPlayer then
+                SubItems["Message1"] = Instances:Create("Frame", {
+                    Parent = Items["Messages"].Instance,
                     Name = "\0",
-                    AnchorPoint = Vector2New(1, 0),
-                    Position = UDim2New(0, -15, 0, 0),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 378, 0, 511),
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(10, 12, 11)
-                })  Items["Chat_System"]:AddToTheme({BackgroundColor3 = "Background", BackgroundTransparency = function() return Library.Theme["Panel Transparency"] or 0 end})
-
-                Items["Chat_System"]:MakeDraggable()
-
-                Instances:Create("UICorner", {
-                    Parent = Items["Chat_System"].Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 5)
-                })
-
-                Instances:Create("UIStroke", {
-                    Parent = Items["Chat_System"].Instance,
-                    Name = "\0",
-                    Color = FromRGB(34, 35, 37),
-                    Transparency = 0.4000000059604645,
-                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-                }):AddToTheme({Color = "Border"})
-
-                Items["Topbar"] = Instances:Create("Frame", {
-                    Parent = Items["Chat_System"].Instance,
-                    Name = "\0",
-                    Size = UDim2New(1, 0, 0, 35),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
                     BackgroundTransparency = 1,
-                    BackgroundColor3 = FromRGB(21, 22, 24)
-                })  Items["Topbar"]:AddToTheme({BackgroundColor3 = "Inline"})
-
-                Instances:Create("UICorner", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 5)
-                })
-
-                Instances:Create("Frame", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
+                    Size = UDim2New(1, 0, 0, 45),
                     BorderColor3 = FromRGB(0, 0, 0),
-                    AnchorPoint = Vector2New(0, 1),
-                    Position = UDim2New(0, 0, 1, 0),
-                    Size = UDim2New(1, 0, 0, 3),
-                    ZIndex = 2,
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(21, 22, 24)
-                }):AddToTheme({BackgroundColor3 = "Inline"})
-
-                Instances:Create("Frame", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    AnchorPoint = Vector2New(0, 1),
-                    BackgroundTransparency = 0.4000000059604645,
-                    Position = UDim2New(0, 0, 1, 0),
-                    Size = UDim2New(1, 0, 0, 1),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(34, 35, 37)
-                }):AddToTheme({BackgroundColor3 = "Border"})
-
-                Instances:Create("UIGradient", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    Rotation = 84,
-                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
-                }):AddToTheme({Color = function()
-                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
-                end})
-
-                Items["Logo"] = Instances:Create("ImageLabel", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    ImageColor3 = FromRGB(191, 64, 191),
-                    ScaleType = Enum.ScaleType.Fit,
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 20, 0, 20),
-                    AnchorPoint = Vector2New(0, 0.5),
-                    Image = "rbxassetid://103982381939732",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(0, 10, 0.5, 0),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.Y,
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["Logo"]:AddToTheme({ImageColor3 = "Accent"})
+                })
 
-                Items["Title"] = Instances:Create("TextLabel", {
-                    Parent = Items["Topbar"].Instance,
+                SubItems["PlayerName"] = Instances:Create("TextLabel", {
+                    Parent = SubItems["Message1"].Instance,
                     Name = "\0",
                     FontFace = Library.Font,
-                    AnchorPoint = Vector2New(0, 0.5),
-                    ZIndex = 2,
-                    TextSize = 14,
+                    TextColor3 = FromRGB(255, 255, 255),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = Username,
                     Size = UDim2New(0, 0, 0, 15),
                     RichText = true,
-                    TextColor3 = FromRGB(255, 255, 255),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Text = "Global Chat",
                     BackgroundTransparency = 1,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Position = UDim2New(0, 37, 0.5, 0),
+                    TextTruncate = Enum.TextTruncate.AtEnd,
+                    Position = UDim2New(0, 38, 0, 0),
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.X,
+                    TextSize = 15,
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
+                })  SubItems["PlayerName"]:AddToTheme({TextColor3 = "Text"})
 
-                Items["CloseButton"] = Instances:Create("ImageButton", {
-                    Parent = Items["Topbar"].Instance,
+                SubItems["RealMessage"] = Instances:Create("Frame", {
+                    Parent = SubItems["Message1"].Instance,
                     Name = "\0",
-                    ScaleType = Enum.ScaleType.Fit,
+                    Position = UDim2New(0, 38, 0, 20),
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 17, 0, 17),
-                    AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Image = "rbxassetid://76001605964586",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(1, -7, 0.5, 0),
-                    ZIndex = 2,
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["CloseButton"]:AddToTheme({ImageColor3 = "Image"})
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    BackgroundColor3 = FromRGB(29, 33, 34)
+                })  SubItems["RealMessage"]:AddToTheme({BackgroundColor3 = "Element"})
 
-                Items["StatusCircle"] = Instances:Create("Frame", {
-                    Parent = Items["Topbar"].Instance,
+                Instances:Create("UISizeConstraint", {
+                    Parent = SubItems["RealMessage"].Instance,
                     Name = "\0",
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Position = UDim2New(1, -33, 0.5, 0),
-                    Size = UDim2New(0, 12, 0, 12),
-                    ZIndex = 3,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 210, 62)
+                    MaxSize = Vector2New(350, 160)
                 })
 
                 Instances:Create("UICorner", {
-                    Parent = Items["StatusCircle"].Instance,
+                    Parent = SubItems["RealMessage"].Instance,
                     Name = "\0",
-                    CornerRadius = UDimNew(1, 0)
+                    CornerRadius = UDimNew(0, 8)
                 })
 
-                Instances:Create("UIGradient", {
-                    Parent = Items["StatusCircle"].Instance,
-                    Name = "\0",
-                    Rotation = 90,
-                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
-                }):AddToTheme({Color = function()
-                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
-                end})
-
-                Items["StatusText"] = Instances:Create("TextLabel", {
-                    Parent = Items["Topbar"].Instance,
+                SubItems["MessageText"] = Instances:Create("TextLabel", {
+                    Parent = SubItems["RealMessage"].Instance,
                     Name = "\0",
                     FontFace = Library.Font,
-                    TextColor3 = FromRGB(255, 210, 62),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Text = "Connecting...",
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    Size = UDim2New(0, 0, 0, 15),
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Position = UDim2New(1, -50, 0.5, 0),
-                    BackgroundTransparency = 1,
-                    TextXAlignment = Enum.TextXAlignment.Right,
-                    BorderSizePixel = 0,
-                    ZIndex = 2,
-                    TextSize = 14,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })
-
-                Items["Glow"] = Instances:Create("ImageLabel", {
-                    Parent = Items["StatusCircle"].Instance,
-                    Name = "\0",
-                    ImageColor3 = FromRGB(255, 210, 62),
-                    ScaleType = Enum.ScaleType.Slice,
-                    ImageTransparency = 0.30000001192092896,
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    BackgroundColor3 = FromRGB(255, 255, 255),
-                    Size = UDim2New(1, 8, 1, 8),
-                    AnchorPoint = Vector2New(0.5, 0.5),
-                    Image = "http://www.roblox.com/asset/?id=18245826428",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(0.5, 0, 0.5, 0),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
-                    SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
-                })
-
-                Items["SendMessage"] = Instances:Create("Frame", {
-                    Parent = Items["Chat_System"].Instance,
-                    Name = "\0",
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    AnchorPoint = Vector2New(0, 1),
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(0, 8, 1, -8),
-                    Size = UDim2New(1, -16, 0, 35),
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  
-
-                Items["Input"] = Instances:Create("TextBox", {
-                    Parent = Items["SendMessage"].Instance,
-                    Name = "\0",
-                    FontFace = Library.Font,
-                    MultiLine = true,
-                    CursorPosition = -1,
-                    PlaceholderColor3 = FromRGB(185, 185, 185),
-                    PlaceholderText = "PLEASE WAIT, CURRENTLY LOADING...",
-                    TextSize = 14,
-                    Size = UDim2New(1, -45, 1, 0),
                     TextColor3 = FromRGB(255, 255, 255),
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Text = "",
-                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Text = Message,
+                    BackgroundTransparency = 1,
                     TextWrapped = true,
-                    ClearTextOnFocus = false,
+                    RichText = false,
+                    TextXAlignment = Enum.TextXAlignment.Left,
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(29, 33, 34)
-                })  Items["Input"]:AddToTheme({BackgroundColor3 = "Element"})
-
-                getgenv().SendMessage_Input = Items["Input"]
-
-                Instances:Create("UICorner", {
-                    Parent = Items["Input"].Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 8)
-                })
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    TextSize = 16,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })  SubItems["MessageText"]:AddToTheme({TextColor3 = "Text"})
 
                 Instances:Create("UIPadding", {
-                    Parent = Items["Input"].Instance,
-                    Name = "\0",
-                    PaddingLeft = UDimNew(0, 8)
-                })
-
-                Items["SendMessageButton"] = Instances:Create("TextButton", {
-                    Parent = Items["SendMessage"].Instance,
-                    Name = "\0",
-                    FontFace = Library.Font,
-                    TextColor3 = FromRGB(0, 0, 0),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Text = "",
-                    AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0),
-                    Position = UDim2New(1, 0, 0, 0),
-                    Size = UDim2New(0, 35, 1, 0),
-                    BorderSizePixel = 0,
-                    TextSize = 14,
-                    BackgroundColor3 = FromRGB(29, 33, 34)
-                })  Items["SendMessageButton"]:AddToTheme({BackgroundColor3 = "Element"})
-
-                Instances:Create("UICorner", {
-                    Parent = Items["SendMessageButton"].Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 8)
-                })
-
-                Items["SendImageLabel"] = Instances:Create("ImageLabel", {
-                    Parent = Items["SendMessageButton"].Instance,
-                    Name = "\0",
-                    ImageColor3 = FromRGB(191, 64, 191),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    AnchorPoint = Vector2New(0.5, 0.5),
-                    Image = "rbxassetid://93681479181206",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(0.5, 0, 0.5, 0),
-                    Size = UDim2New(0, 16, 0, 16),
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["SendImageLabel"]:AddToTheme({ImageColor3 = "Accent"})
-
-                Items["Messages"] = Instances:Create("ScrollingFrame", {
-                    Parent = Items["Chat_System"].Instance,
-                    Name = "\0",
-                    AutomaticCanvasSize = Enum.AutomaticSize.Y,
-                    BorderSizePixel = 0,
-                    CanvasSize = UDim2New(0, 0, 0, 0),
-                    ScrollBarImageColor3 = FromRGB(191, 64, 191),
-                    MidImage = "rbxassetid://76010408336709",
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    ScrollBarThickness = 2,
-                    Size = UDim2New(1, 0, 1, -80),
-                    Selectable = false,
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(0, 0, 0, 35),
-                    BottomImage = "rbxassetid://76010408336709",
-                    TopImage = "rbxassetid://76010408336709",
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["Messages"]:AddToTheme({ScrollBarImageColor3 = "Accent"})
-
-                Instances:Create("UIListLayout", {
-                    Parent = Items["Messages"].Instance,
-                    Name = "\0",
-                    SortOrder = Enum.SortOrder.LayoutOrder,
-                    Archivable = false,
-                    Padding = UDimNew(0, 8)
-                })
-
-                Instances:Create("UIPadding", {
-                    Parent = Items["Messages"].Instance,
+                    Parent = SubItems["RealMessage"].Instance,
                     Name = "\0",
                     PaddingTop = UDimNew(0, 8),
                     PaddingBottom = UDimNew(0, 8),
-                    PaddingRight = UDimNew(0, 12),
+                    PaddingRight = UDimNew(0, 8),
                     PaddingLeft = UDimNew(0, 8)
                 })
+
+                SubItems["Avatar"] = Instances:Create("ImageLabel", {
+                    Parent = SubItems["Message1"].Instance,
+                    Name = "\0",
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    AnchorPoint = Vector2New(0, 0.5),
+                    Image = Avatar,
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0, 0, 0.5, 0),
+                    Size = UDim2New(0, 30, 0, 30),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Instances:Create("UICorner", {
+                    Parent = SubItems["Avatar"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 4)
+                })
+            else
+                SubItems["Message1"] = Instances:Create("Frame", {
+                    Parent = Items["Messages"].Instance,
+                    Name = "\0",
+                    BackgroundTransparency = 1,
+                    Size = UDim2New(1, 0, 0, 45),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                SubItems["PlayerName"] = Instances:Create("TextLabel", {
+                    Parent = SubItems["Message1"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextColor3 = FromRGB(255, 255, 255),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = Username,
+                    RichText = true,
+                    AnchorPoint = Vector2New(1, 0),
+                    Size = UDim2New(0, 0, 0, 15),
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Right,
+                    TextTruncate = Enum.TextTruncate.AtEnd,
+                    Position = UDim2New(1, -38, 0, 0),
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.X,
+                    TextSize = 15,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })  SubItems["PlayerName"]:AddToTheme({TextColor3 = "Text"})
+
+                SubItems["RealMessage"] = Instances:Create("Frame", {
+                    Parent = SubItems["Message1"].Instance,
+                    Name = "\0",
+                    AnchorPoint = Vector2New(1, 0),
+                    Position = UDim2New(1, -38, 0, 20),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    BackgroundColor3 = FromRGB(29, 33, 34)
+                })  SubItems["RealMessage"]:AddToTheme({BackgroundColor3 = "Element"})
+
+                Instances:Create("UISizeConstraint", {
+                    Parent = SubItems["RealMessage"].Instance,
+                    Name = "\0",
+                    MaxSize = Vector2New(350, 160)
+                })
+
+                Instances:Create("UICorner", {
+                    Parent = SubItems["RealMessage"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 8)
+                })
+
+                SubItems["MessageText"] = Instances:Create("TextLabel", {
+                    Parent = SubItems["RealMessage"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextColor3 = FromRGB(255, 255, 255),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = Message,
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    TextWrapped = true,
+                    RichText = false,
+                    TextSize = 16,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })  SubItems["MessageText"]:AddToTheme({TextColor3 = "Text"})
+
+                Instances:Create("UIPadding", {
+                    Parent = SubItems["RealMessage"].Instance,
+                    Name = "\0",
+                    PaddingTop = UDimNew(0, 8),
+                    PaddingBottom = UDimNew(0, 8),
+                    PaddingRight = UDimNew(0, 8),
+                    PaddingLeft = UDimNew(0, 8)
+                })
+
+                SubItems["Avatar"] = Instances:Create("ImageLabel", {
+                    Parent = SubItems["Message1"].Instance,
+                    Name = "\0",
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    AnchorPoint = Vector2New(1, 0.5),
+                    Image = Avatar,
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(1, 0, 0.5, 0),
+                    Size = UDim2New(0, 30, 0, 30),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+
+                Instances:Create("UICorner", {
+                    Parent = SubItems["Avatar"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 4)
+                })
             end
-
-            function GlobalChat:SetVisibility(Bool)
-                Items["Chat_System"].Instance.Visible = Bool
-                
-                pcall(function()
-                    Items["Chat_System"].Instance.Parent = Bool and Data.MainFrame.Instance or Library.UnusedHolder
-                end)
-            end
-
-            local Done = false
-
-            function GlobalChat:SetStatusText(Text)
-                if not Done then
-                    Items["StatusText"].Instance.TextColor3 = FromRGB(62, 255, 91)
-                    Items["Glow"].Instance.ImageColor3 = FromRGB(62, 255, 91)
-                    Items["StatusCircle"].Instance.BackgroundColor3 = FromRGB(62, 255, 91)
-                    Done = true
-                end
-                Items["StatusText"].Instance.Text = Text
-            end
-
-            local OnMessagePressed            
-
-            function GlobalChat:OnMessageSendPressed(Func)
-                OnMessagePressed = Func
-            end
-
-            function GlobalChat:GetTypedMessage()
-                return Items["Input"].Instance.Text
-            end
-
-            function GlobalChat:ClearText()
-                Items["Input"].Instance.Text = ""
-            end
-            GlobalChat.Special = GlobalChat.Special or {}
-            GlobalChat.MeDiscordId = ""
-            GlobalChat.MeHandle = ""
-            GlobalChat.MePic = nil
-            GlobalChat._dcache = {}
-
-            function GlobalChat:ResolveDiscord(DiscordId)
-                DiscordId = tostring(DiscordId or "")
-                if not DiscordId:match("^%d+$") then
-                    return nil, nil
-                end
-                if GlobalChat._dcache[DiscordId] then
-                    return GlobalChat._dcache[DiscordId].pic, GlobalChat._dcache[DiscordId].handle
-                end
-                local pic, handle
-                local ok, res = pcall(game.HttpGet, game, "https://api.lanyard.rest/v1/users/" .. DiscordId)
-                if ok and res then
-                    local ok2, data = pcall(HttpService.JSONDecode, HttpService, res)
-                    local u = ok2 and type(data) == "table" and data.success and type(data.data) == "table" and data.data.discord_user
-                    if type(u) == "table" then
-                        local h = u.global_name or u.username
-                        if h and h ~= "" then
-                            handle = tostring(h)
-                        end
-                        if u.avatar and u.avatar ~= "" then
-                            local ext = tostring(u.avatar):sub(1, 2) == "a_" and ".gif" or ".png"
-                            local link = StringGSub("https://cdn.discordapp.com/avatars/" .. DiscordId .. "/" .. tostring(u.avatar) .. ext, "%.gif$", ".png")
-                            local f = Library.Folders.Assets .. "/Profiles/" .. DiscordId .. ".png"
-                            pcall(makefolder, Library.Folders.Assets .. "/Profiles")
-                            if not isfile(f) then
-                                local ok3, bytes = pcall(game.HttpGet, game, link)
-                                if ok3 and bytes then
-                                    pcall(writefile, f, bytes)
-                                end
-                            end
-                            pcall(function() pic = getcustomasset(f) end)
-                        end
-                    end
-                end
-                if not pic then
-                    pic = ChatAvatar("")
-                end
-                GlobalChat._dcache[DiscordId] = { pic = pic, handle = handle }
-                return pic, handle
-            end
-
-            function GlobalChat:SetIdentity(DiscordId)
-                local raw = tostring(DiscordId or "")
-                if LPH_OBFUSCATED == nil and raw == "1096603799159832636" then
-                    raw = ""
-                end
-                local lp = LocalPlayer
-                local base = (lp and lp.DisplayName) or "You"
-                if not raw:match("^%d+$") then
-                    GlobalChat.MeDiscordId, GlobalChat.MeHandle, GlobalChat.MePic = "", "", nil
-                    return nil, base
-                end
-                GlobalChat.MeDiscordId = raw
-                local pic, handle = GlobalChat:ResolveDiscord(raw)
-                GlobalChat.MePic = pic
-                GlobalChat.MeHandle = handle or ""
-                return pic, base
-            end
-
-            function GlobalChat:DetectIdentity()
-                return Chat:SetIdentity(LRM_LinkedDiscordID)
-            end
-
-            function GlobalChat:Me()
-                local lp = LocalPlayer
-                local base = (lp and lp.DisplayName) or "You"
-                if GlobalChat.MeHandle ~= "" then
-                    return GlobalChat.MePic, base .. " (@" .. GlobalChat.MeHandle .. ")"
-                end
-                return GlobalChat.MePic, base
-            end
-
-            function GlobalChat:FormatName(DiscordId, DiscordName)
-                local did = tostring(DiscordId or "")
-                local dn = tostring(DiscordName or "")
-                if dn == "" then
-                    dn = "Unknown"
-                end
-                return "@" .. dn .. (GlobalChat.Special[did] or "")
-            end
-
-            function GlobalChat:PicFor(UserId, DiscordId)
-                local pic = GlobalChat:ResolveDiscord(DiscordId)
-                if pic then
-                    return pic
-                end
-                local ok, img = pcall(function()
-                    return Players:GetUserThumbnailAsync(tonumber(UserId) or 0, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-                end)
-                if ok and img and img ~= "" then
-                    return img
-                end
-                return ChatAvatar("")
-            end
-
-
-            function GlobalChat:SendMessage(Avatar, Username, Message, IsLocalPlayer)
-                Username = tostring(Username or "User")
-                Message = tostring(Message or "")
-                if Message == "" then
-                    return
-                end
-                Message = ChatEmotify(Message)
-
-                Avatar = ChatAvatar(Avatar)
-
-                local SubItems = { } do
-                    if not IsLocalPlayer then
-                        SubItems["Message1"] = Instances:Create("Frame", {
-                            Parent = Items["Messages"].Instance,
-                            Name = "\0",
-                            BackgroundTransparency = 1,
-                            Size = UDim2New(1, 0, 0, 45),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.Y,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })
-
-                        SubItems["PlayerName"] = Instances:Create("TextLabel", {
-                            Parent = SubItems["Message1"].Instance,
-                            Name = "\0",
-                            FontFace = Library.Font,
-                            TextColor3 = FromRGB(255, 255, 255),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            Text = Username,
-                            Size = UDim2New(0, 0, 0, 15),
-                            RichText = true,
-                            BackgroundTransparency = 1,
-                            TextXAlignment = Enum.TextXAlignment.Left,
-                            TextTruncate = Enum.TextTruncate.AtEnd,
-                            Position = UDim2New(0, 38, 0, 0),
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.X,
-                            TextSize = 15,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })  SubItems["PlayerName"]:AddToTheme({TextColor3 = "Text"})
-
-                        SubItems["RealMessage"] = Instances:Create("Frame", {
-                            Parent = SubItems["Message1"].Instance,
-                            Name = "\0",
-                            Position = UDim2New(0, 38, 0, 20),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.XY,
-                            BackgroundColor3 = FromRGB(29, 33, 34)
-                        })  SubItems["RealMessage"]:AddToTheme({BackgroundColor3 = "Element"})
-
-                        Instances:Create("UISizeConstraint", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            MaxSize = Vector2New(350, 160)
-                        })
-
-                        Instances:Create("UICorner", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            CornerRadius = UDimNew(0, 8)
-                        })
-
-                        SubItems["MessageText"] = Instances:Create("TextLabel", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            FontFace = Library.Font,
-                            TextColor3 = FromRGB(255, 255, 255),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            Text = Message,
-                            BackgroundTransparency = 1,
-                            TextWrapped = true,
-                            RichText = false,
-                            TextXAlignment = Enum.TextXAlignment.Left,
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.XY,
-                            TextSize = 16,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })  SubItems["MessageText"]:AddToTheme({TextColor3 = "Text"})
-
-                        Instances:Create("UIPadding", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            PaddingTop = UDimNew(0, 8),
-                            PaddingBottom = UDimNew(0, 8),
-                            PaddingRight = UDimNew(0, 8),
-                            PaddingLeft = UDimNew(0, 8)
-                        })
-
-                        SubItems["Avatar"] = Instances:Create("ImageLabel", {
-                            Parent = SubItems["Message1"].Instance,
-                            Name = "\0",
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            AnchorPoint = Vector2New(0, 0.5),
-                            Image = Avatar,
-                            BackgroundTransparency = 1,
-                            Position = UDim2New(0, 0, 0.5, 0),
-                            Size = UDim2New(0, 30, 0, 30),
-                            BorderSizePixel = 0,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })
-
-                        Instances:Create("UICorner", {
-                            Parent = SubItems["Avatar"].Instance,
-                            Name = "\0",
-                            CornerRadius = UDimNew(0, 0)
-                        })
-                    else
-                        SubItems["Message1"] = Instances:Create("Frame", {
-                            Parent = Items["Messages"].Instance,
-                            Name = "\0",
-                            BackgroundTransparency = 1,
-                            Size = UDim2New(1, 0, 0, 45),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.Y,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })
-
-                        SubItems["PlayerName"] = Instances:Create("TextLabel", {
-                            Parent = SubItems["Message1"].Instance,
-                            Name = "\0",
-                            FontFace = Library.Font,
-                            TextColor3 = FromRGB(255, 255, 255),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            Text = Username,
-                            RichText = true,
-                            AnchorPoint = Vector2New(1, 0),
-                            Size = UDim2New(0, 0, 0, 15),
-                            BackgroundTransparency = 1,
-                            TextXAlignment = Enum.TextXAlignment.Right,
-                            TextTruncate = Enum.TextTruncate.AtEnd,
-                            Position = UDim2New(1, -38, 0, 0),
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.X,
-                            TextSize = 15,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })  SubItems["PlayerName"]:AddToTheme({TextColor3 = "Text"})
-
-                        SubItems["RealMessage"] = Instances:Create("Frame", {
-                            Parent = SubItems["Message1"].Instance,
-                            Name = "\0",
-                            AnchorPoint = Vector2New(1, 0),
-                            Position = UDim2New(1, -38, 0, 20),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.XY,
-                            BackgroundColor3 = FromRGB(29, 33, 34)
-                        })  SubItems["RealMessage"]:AddToTheme({BackgroundColor3 = "Element"})
-
-                        Instances:Create("UISizeConstraint", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            MaxSize = Vector2New(350, 160)
-                        })
-
-                        Instances:Create("UICorner", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            CornerRadius = UDimNew(0, 8)
-                        })
-
-                        SubItems["MessageText"] = Instances:Create("TextLabel", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            FontFace = Library.Font,
-                            TextColor3 = FromRGB(255, 255, 255),
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            Text = Message,
-                            BackgroundTransparency = 1,
-                            TextXAlignment = Enum.TextXAlignment.Left,
-                            BorderSizePixel = 0,
-                            AutomaticSize = Enum.AutomaticSize.XY,
-                            TextWrapped = true,
-                            RichText = false,
-                            TextSize = 16,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })  SubItems["MessageText"]:AddToTheme({TextColor3 = "Text"})
-
-                        Instances:Create("UIPadding", {
-                            Parent = SubItems["RealMessage"].Instance,
-                            Name = "\0",
-                            PaddingTop = UDimNew(0, 8),
-                            PaddingBottom = UDimNew(0, 8),
-                            PaddingRight = UDimNew(0, 8),
-                            PaddingLeft = UDimNew(0, 8)
-                        })
-
-                        SubItems["Avatar"] = Instances:Create("ImageLabel", {
-                            Parent = SubItems["Message1"].Instance,
-                            Name = "\0",
-                            BorderColor3 = FromRGB(0, 0, 0),
-                            AnchorPoint = Vector2New(1, 0.5),
-                            Image = Avatar,
-                            BackgroundTransparency = 1,
-                            Position = UDim2New(1, 0, 0.5, 0),
-                            Size = UDim2New(0, 30, 0, 30),
-                            BorderSizePixel = 0,
-                            BackgroundColor3 = FromRGB(255, 255, 255)
-                        })
-
-                        Instances:Create("UICorner", {
-                            Parent = SubItems["Avatar"].Instance,
-                            Name = "\0",
-                            CornerRadius = UDimNew(0, 0)
-                        })
-                    end
-                end
-            end
-
-            Items["CloseButton"]:Connect("MouseButton1Down", function()
-                GlobalChat:SetVisibility(false)
-
-                if GlobalChat_Toggle then
-                    GlobalChat_Toggle:Set(false)
-                end
-            end)
-            
-            Items["SendMessageButton"]:Connect("MouseButton1Down", function()
-                if GlobalChat:GetTypedMessage() == "" then
-                    return
-                end
-                
-                task.spawn(OnMessagePressed)
-                Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library:GetDarkerColor(Library.Theme.Accent)})
-                task.wait(0.1)
-                Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
-            end)
-
-            Items["SendMessageButton"]:Connect("MouseEnter", function()
-                Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library:GetDarkerColor(Library.Theme.Element)})
-            end)
-
-            Items["SendMessageButton"]:Connect("MouseLeave", function()
-                Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
-            end)
-
-            Items["Input"]:Connect("MouseEnter", function()
-                Items["Input"]:Tween(nil, {BackgroundColor3 = Library:GetDarkerColor(Library.Theme.Element)})
-            end)
-
-            Items["Input"]:Connect("MouseLeave", function()
-                Items["Input"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
-            end)
-
-            Items["Messages"]:Connect("ChildAdded", function()
-                wait() -- wait so we ensure the child is added
-                Items["Messages"]:Tween(nil, {CanvasPosition = Vector2New(0, Items["Messages"].Instance.AbsoluteCanvasSize.Y - Items["Messages"].Instance.AbsoluteSize.Y)})
-            end)
-
-            return GlobalChat 
         end
+    end
+
+    Items["CloseButton"]:Connect("MouseButton1Down", function()
+        GlobalChat:SetVisibility(false)
+
+        if GlobalChat_Toggle then
+            GlobalChat_Toggle:Set(false)
+        end
+    end)
+    
+    Items["SendMessageButton"]:Connect("MouseButton1Down", function()
+        if GlobalChat:GetTypedMessage() == "" then
+            return
+        end
+        
+        task.spawn(OnMessagePressed)
+        Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library:GetDarkerColor(Library.Theme.Accent)})
+        task.wait(0.1)
+        Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+    end)
+
+    Items["SendMessageButton"]:Connect("MouseEnter", function()
+        Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library:GetDarkerColor(Library.Theme.Element)})
+    end)
+
+    Items["SendMessageButton"]:Connect("MouseLeave", function()
+        Items["SendMessageButton"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+    end)
+
+    Items["Input"]:Connect("MouseEnter", function()
+        Items["Input"]:Tween(nil, {BackgroundColor3 = Library:GetDarkerColor(Library.Theme.Element)})
+    end)
+
+    Items["Input"]:Connect("MouseLeave", function()
+        Items["Input"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+    end)
+
+    Items["Messages"]:Connect("ChildAdded", function()
+        wait()
+        Items["Messages"]:Tween(nil, {CanvasPosition = Vector2New(0, Items["Messages"].Instance.AbsoluteCanvasSize.Y - Items["Messages"].Instance.AbsoluteSize.Y)})
+    end)
+
+    return GlobalChat 
+end
         
         Library.Notification = function(self, Data)
             Data = Data or { }
@@ -8094,17 +8117,33 @@ do -- Library
                 Window = HostPage.Window,
                 Page = HostPage,
                 Items = { },
+                IsOpen = true,
             }
 
             local Items = { } do
                 Items["Root"] = Instances:Create("Frame", {
-                    Parent = HostPage.Items["PageContent"].Instance,
+                    Parent = Library.Holder.Instance,
                     Name = "\0",
-                    Size = UDim2New(1, 0, 1, 0),
+                    AnchorPoint = Vector2New(0, 0),
+                    Position = UDim2New(0, 0, 0, 0),
+                    Size = UDim2New(0, 378, 0, 420),
                     ZIndex = 2,
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(10, 12, 11)
-                }) Items["Root"]:AddToTheme({BackgroundColor3 = "Background", BackgroundTransparency = function() return Library.Theme["Panel Transparency"] or 0 end})
+                    BackgroundColor3 = FromRGB(16, 18, 21)
+                })  Items["Root"]:AddToTheme({
+                    BackgroundColor3 = "Background",
+                    BackgroundTransparency = function() return Library.Theme["Panel Transparency"] or 0 end
+                })
+
+                Items["Root"]:MakeDraggable()
+
+                task.defer(function()
+                    local MainFrame = HostPage.Window.Items["MainFrame"].Instance
+                    if not MainFrame then return end
+                    local MainPos = MainFrame.AbsolutePosition
+                    local MainSize = MainFrame.AbsoluteSize
+                    Items["Root"].Instance.Position = UDim2New(0, MainPos.X + MainSize.X + 10, 0, MainPos.Y)
+                end)
 
                 Instances:Create("UICorner", {
                     Parent = Items["Root"].Instance,
@@ -8112,15 +8151,39 @@ do -- Library
                     CornerRadius = UDimNew(0, 5)
                 })
 
+                Instances:Create("UIStroke", {
+                    Parent = Items["Root"].Instance,
+                    Name = "\0",
+                    Color = FromRGB(32, 36, 42),
+                    Transparency = 0.4,
+                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                }):AddToTheme({Color = "Border"})
+
+                Items["Shadow"] = Instances:Create("ImageLabel", {
+                    Parent = Items["Root"].Instance,
+                    Name = "\0",
+                    ImageColor3 = FromRGB(0, 0, 0),
+                    ScaleType = Enum.ScaleType.Slice,
+                    ImageTransparency = 0.82,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Size = UDim2New(1, 25, 1, 25),
+                    AnchorPoint = Vector2New(0.5, 0.5),
+                    Image = "http://www.roblox.com/asset/?id=18245826428",
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0.5, 0, 0.5, 0),
+                    ZIndex = 1,
+                    BorderSizePixel = 0,
+                    SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
+                })  Items["Shadow"]:AddToTheme({ImageColor3 = "Shadow"})
+
                 Items["Topbar"] = Instances:Create("Frame", {
                     Parent = Items["Root"].Instance,
                     Name = "\0",
-                    Size = UDim2New(1, 0, 0, 44),
+                    Size = UDim2New(1, 0, 0, 40),
                     ZIndex = 3,
                     BorderSizePixel = 0,
-                    BackgroundTransparency = 1,
-                    BackgroundColor3 = FromRGB(21, 22, 24)
-                }) Items["Topbar"]:AddToTheme({BackgroundColor3 = "Inline"})
+                    BackgroundColor3 = FromRGB(22, 25, 29)
+                })  Items["Topbar"]:AddToTheme({BackgroundColor3 = "Inline"})
 
                 Instances:Create("UICorner", {
                     Parent = Items["Topbar"].Instance,
@@ -8136,7 +8199,7 @@ do -- Library
                     Size = UDim2New(1, 0, 0, 3),
                     ZIndex = 3,
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(21, 22, 24)
+                    BackgroundColor3 = FromRGB(22, 25, 29)
                 }):AddToTheme({BackgroundColor3 = "Inline"})
 
                 Instances:Create("UIGradient", {
@@ -8147,31 +8210,13 @@ do -- Library
                 }):AddToTheme({Color = function()
                     return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
                 end})
-                
-                Items["Title"] = Instances:Create("TextLabel", {
-                Parent = Items["Topbar"].Instance,
-                Name = "\0",
-                FontFace = Library.Font,
-                TextColor3 = FromRGB(255, 255, 255),
-                Text = "Global Chat",
-                AnchorPoint = Vector2New(0, 0.5),
-               Size = UDim2New(1, -150, 0, 15),
-               BackgroundTransparency = 1,
-               TextXAlignment = Enum.TextXAlignment.Left,
-               TextYAlignment = Enum.TextYAlignment.Center,
-               Position = UDim2New(0, 37, 0.5, -1),
-               ZIndex = 3,
-               BorderSizePixel = 0,
-               TextSize = 16,
-                BackgroundColor3 = FromRGB(255, 255, 255)
-            }) Items["Title"]:AddToTheme({TextColor3 = "Text"})
 
                 Items["Logo"] = Instances:Create("ImageLabel", {
                     Parent = Items["Topbar"].Instance,
                     Name = "\0",
                     ImageColor3 = FromRGB(191, 64, 191),
                     ScaleType = Enum.ScaleType.Fit,
-                    Size = UDim2New(0, 20, 0, 20),
+                    Size = UDim2New(0, 16, 0, 16),
                     AnchorPoint = Vector2New(0, 0.5),
                     Image = "rbxassetid://103982381939732",
                     BackgroundTransparency = 1,
@@ -8181,6 +8226,26 @@ do -- Library
                     BorderColor3 = FromRGB(0, 0, 0),
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 }) Items["Logo"]:AddToTheme({ImageColor3 = "Accent"})
+
+                Items["Title"] = Instances:Create("TextLabel", {
+                    Parent = Items["Topbar"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    AnchorPoint = Vector2New(0, 0.5),
+                    ZIndex = 3,
+                    TextSize = 14,
+                    Size = UDim2New(0, 0, 0, 15),
+                    RichText = true,
+                    TextColor3 = FromRGB(255, 255, 255),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = "Global Chat",
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Position = UDim2New(0, 37, 0.5, 0),
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.X,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
 
                 Items["Divider"] = Instances:Create("Frame", {
                     Parent = Items["Topbar"].Instance,
@@ -8194,72 +8259,103 @@ do -- Library
                     BackgroundColor3 = FromRGB(34, 35, 37)
                 }) Items["Divider"]:AddToTheme({BackgroundColor3 = "Border"})
 
-                Items["Dot"] = Instances:Create("Frame", {
-    Parent = Items["Topbar"].Instance,
-    Name = "\0",
-    AnchorPoint = Vector2New(1, 0.5),
-    Position = UDim2New(1, -12, 0.5, -1),
-    Size = UDim2New(0, 14, 0, 14),
-    ZIndex = 3,
-    BorderSizePixel = 0,
-    BackgroundColor3 = FromRGB(120, 120, 125)
-})
-Instances:Create("UICorner", {
-    Parent = Items["Dot"].Instance,
-    Name = "\0",
-    CornerRadius = UDimNew(1, 0)
-})
-Items["DotGlow"] = Instances:Create("ImageLabel", {
-    Parent = Items["Dot"].Instance,
-    Name = "\0",
-    ImageColor3 = FromRGB(120, 120, 125),
-    ScaleType = Enum.ScaleType.Slice,
-    ImageTransparency = 0.3,
-    Size = UDim2New(1, 8, 1, 8),
-    AnchorPoint = Vector2New(0.5, 0.5),
-    Image = "http://www.roblox.com/asset/?id=18245826428",
-    BackgroundTransparency = 1,
-    Position = UDim2New(0.5, 0, 0.5, 0),
-    ZIndex = 2,
-    BorderSizePixel = 0,
-    BorderColor3 = FromRGB(0, 0, 0),
-    SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79)),
-    BackgroundColor3 = FromRGB(255, 255, 255)
-})
-Items["Status"] = Instances:Create("TextLabel", {
-    Parent = Items["Topbar"].Instance,
-    Name = "\0",
-    FontFace = Library.Font,
-    TextColor3 = FromRGB(185, 185, 185),
-    Text = "Connecting...",
-    AnchorPoint = Vector2New(1, 0.5),
-    Size = UDim2New(0, 0, 0, 15),
-    AutomaticSize = Enum.AutomaticSize.X,
-    BackgroundTransparency = 1,
-    TextXAlignment = Enum.TextXAlignment.Right,
-    Position = UDim2New(1, -30, 0.5, -1),
-    ZIndex = 3,
-    BorderSizePixel = 0,
-    TextSize = 16,
-    BackgroundColor3 = FromRGB(255, 255, 255)
-}) Items["Status"]:AddToTheme({TextColor3 = "Inactive Text"})
+                Items["CloseButton"] = Instances:Create("ImageButton", {
+                    Parent = Items["Topbar"].Instance,
+                    Name = "\0",
+                    ScaleType = Enum.ScaleType.Fit,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Size = UDim2New(0, 17, 0, 17),
+                    AutoButtonColor = false,
+                    AnchorPoint = Vector2New(1, 0.5),
+                    Image = "rbxassetid://76001605964586",
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(1, -7, 0.5, 0),
+                    ZIndex = 3,
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })  Items["CloseButton"]:AddToTheme({ImageColor3 = "Image"})
+
+                Items["StatusCircle"] = Instances:Create("Frame", {
+                    Parent = Items["Topbar"].Instance,
+                    Name = "\0",
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    AnchorPoint = Vector2New(1, 0.5),
+                    Position = UDim2New(1, -33, 0.5, 0),
+                    Size = UDim2New(0, 12, 0, 12),
+                    ZIndex = 3,
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(255, 210, 62)
+                })
+
+                Instances:Create("UICorner", {
+                    Parent = Items["StatusCircle"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(1, 0)
+                })
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["StatusCircle"].Instance,
+                    Name = "\0",
+                    Rotation = 90,
+                    Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+                }):AddToTheme({Color = function()
+                    return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+                end})
+
+                Items["Glow"] = Instances:Create("ImageLabel", {
+                    Parent = Items["StatusCircle"].Instance,
+                    Name = "\0",
+                    ImageColor3 = FromRGB(255, 210, 62),
+                    ScaleType = Enum.ScaleType.Slice,
+                    ImageTransparency = 0.3,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundColor3 = FromRGB(255, 255, 255),
+                    Size = UDim2New(1, 8, 1, 8),
+                    AnchorPoint = Vector2New(0.5, 0.5),
+                    Image = "http://www.roblox.com/asset/?id=18245826428",
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0.5, 0, 0.5, 0),
+                    ZIndex = 2,
+                    BorderSizePixel = 0,
+                    SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
+                })
+
+                Items["StatusText"] = Instances:Create("TextLabel", {
+                    Parent = Items["Topbar"].Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextColor3 = FromRGB(255, 210, 62),
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Text = "Connecting...",
+                    AutomaticSize = Enum.AutomaticSize.X,
+                    Size = UDim2New(0, 0, 0, 15),
+                    AnchorPoint = Vector2New(1, 0.5),
+                    Position = UDim2New(1, -50, 0.5, 0),
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Right,
+                    BorderSizePixel = 0,
+                    ZIndex = 3,
+                    TextSize = 14,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
 
                 Items["Messages"] = Instances:Create("ScrollingFrame", {
                     Parent = Items["Root"].Instance,
                     Name = "\0",
                     Active = true,
                     AutomaticCanvasSize = Enum.AutomaticSize.Y,
-                    ScrollBarThickness = 2,
+                    ScrollBarThickness = 0,
+                    ScrollBarImageTransparency = 1,
                     BorderSizePixel = 0,
                     CanvasSize = UDim2New(0, 0, 0, 0),
                     ScrollBarImageColor3 = FromRGB(191, 64, 191),
                     BackgroundTransparency = 1,
-                    Size = UDim2New(1, 0, 1, -103),
-                    Position = UDim2New(0, 0, 0, 49),
+                    Size = UDim2New(1, 0, 1, -110),
+                    Position = UDim2New(0, 0, 0, 40),
                     ZIndex = 3,
                     BorderColor3 = FromRGB(0, 0, 0),
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                }) Items["Messages"]:AddToTheme({ScrollBarImageColor3 = "Accent"})
+                })
 
                 Instances:Create("UIListLayout", {
                     Parent = Items["Messages"].Instance,
@@ -8285,31 +8381,41 @@ Items["Status"] = Instances:Create("TextLabel", {
                     Name = "\0",
                     FontFace = Library.Font,
                     Text = "",
-                    PlaceholderText = "Send message",
-                    PlaceholderColor3 = FromRGB(120, 120, 125),
+                    PlaceholderText = "Send a message...",
+                    PlaceholderColor3 = FromRGB(130, 130, 140),
                     TextColor3 = FromRGB(255, 255, 255),
                     TextXAlignment = Enum.TextXAlignment.Left,
+                    TextYAlignment = Enum.TextYAlignment.Center,
                     TextSize = 14,
                     AnchorPoint = Vector2New(0, 1),
-                    Position = UDim2New(0, 14, 1, -8),
-                    Size = UDim2New(1, -76, 0, 38),
+                    Position = UDim2New(0, 12, 1, -10),
+                    Size = UDim2New(1, -72, 0, 40),
                     ZIndex = 3,
                     BorderSizePixel = 0,
                     ClearTextOnFocus = false,
-                    BackgroundColor3 = FromRGB(29, 33, 34)
+                    BackgroundColor3 = FromRGB(24, 27, 32)
                 }) Items["Input"]:AddToTheme({BackgroundColor3 = "Element", TextColor3 = "Text"})
 
                 Instances:Create("UICorner", {
                     Parent = Items["Input"].Instance,
                     Name = "\0",
-                    CornerRadius = UDimNew(0, 8)
+                    CornerRadius = UDimNew(0, 10)
                 })
+
+                Instances:Create("UIStroke", {
+                    Parent = Items["Input"].Instance,
+                    Name = "\0",
+                    Color = FromRGB(45, 50, 60),
+                    Transparency = 0.3,
+                    Thickness = 1,
+                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                }):AddToTheme({Color = "Border"})
 
                 Instances:Create("UIPadding", {
                     Parent = Items["Input"].Instance,
                     Name = "\0",
-                    PaddingLeft = UDimNew(0, 8),
-                    PaddingRight = UDimNew(0, 8)
+                    PaddingLeft = UDimNew(0, 12),
+                    PaddingRight = UDimNew(0, 12)
                 })
 
                 Items["Send"] = Instances:Create("TextButton", {
@@ -8321,23 +8427,38 @@ Items["Status"] = Instances:Create("TextLabel", {
                     TextSize = 14,
                     AutoButtonColor = false,
                     AnchorPoint = Vector2New(1, 1),
-                    Position = UDim2New(1, -16, 1, -8),
-                    Size = UDim2New(0, 38, 0, 38),
+                    Position = UDim2New(1, -12, 1, -10),
+                    Size = UDim2New(0, 40, 0, 40),
                     ZIndex = 3,
                     BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(29, 33, 34)
-                }) Items["Send"]:AddToTheme({BackgroundColor3 = "Element", TextColor3 = "Text"})
+                    BackgroundColor3 = FromRGB(191, 64, 191)
+                }) Items["Send"]:AddToTheme({BackgroundColor3 = "Accent", TextColor3 = "Text"})
 
                 Instances:Create("UICorner", {
                     Parent = Items["Send"].Instance,
                     Name = "\0",
-                    CornerRadius = UDimNew(0, 8)
+                    CornerRadius = UDimNew(0, 10)
                 })
+
+                Instances:Create("UIGradient", {
+                    Parent = Items["Send"].Instance,
+                    Name = "\0",
+                    Rotation = 90,
+                    Color = RGBSequence{
+                        RGBSequenceKeypoint(0, FromRGB(255, 255, 255)),
+                        RGBSequenceKeypoint(1, FromRGB(211, 211, 211))
+                    }
+                }):AddToTheme({Color = function()
+                    return RGBSequence{
+                        RGBSequenceKeypoint(0, FromRGB(255, 255, 255)),
+                        RGBSequenceKeypoint(1, Library:GetDarkerColor(Library.Theme.Accent))
+                    }
+                end})
 
                 Items["Plane"] = Instances:Create("ImageLabel", {
                     Parent = Items["Send"].Instance,
                     Name = "\0",
-                    ImageColor3 = FromRGB(191, 64, 191),
+                    ImageColor3 = FromRGB(255, 255, 255),
                     BorderColor3 = FromRGB(0, 0, 0),
                     AnchorPoint = Vector2New(0.5, 0.5),
                     Image = "rbxassetid://93681479181206",
@@ -8347,14 +8468,14 @@ Items["Status"] = Instances:Create("TextLabel", {
                     ZIndex = 4,
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(255, 255, 255)
-                }) Items["Plane"]:AddToTheme({ImageColor3 = "Accent"})
+                }) Items["Plane"]:AddToTheme({ImageColor3 = "Image"})
 
                 Items["Send"]:OnHover(function()
-                    Items["Send"]:Tween(nil, {BackgroundColor3 = Library:GetLighterColor(Library.Theme.Element, 1.45)})
+                    Items["Send"]:Tween(nil, {BackgroundColor3 = Library:GetLighterColor(Library.Theme.Accent, 1.2)})
                 end)
 
                 Items["Send"]:OnHoverLeave(function()
-                    Items["Send"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+                    Items["Send"]:Tween(nil, {BackgroundColor3 = Library.Theme.Accent})
                 end)
 
                 Items["Input"]:OnHover(function()
@@ -8369,17 +8490,75 @@ Items["Status"] = Instances:Create("TextLabel", {
             if HostPage.Items["Columns"] and HostPage.Items["Columns"].Instance then
                 HostPage.Items["Columns"].Instance.Visible = false
             end
-            Items["Root"].Instance.Visible = true
-            Items["Root"].Instance.Parent = HostPage.Items["PageContent"].Instance
+
+            do
+                local MainFrame = HostPage.Window.Items["MainFrame"].Instance
+                local DraggingWindow = false
+                local DragStartMouse = nil
+                local DragStartChatPos = nil
+
+                Library:Connect(MainFrame.InputBegan, function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1
+                    or Input.UserInputType == Enum.UserInputType.Touch then
+                        DraggingWindow = true
+                        DragStartMouse = Input.Position
+                        DragStartChatPos = Items["Root"].Instance.Position
+                    end
+                end)
+
+                Library:Connect(UserInputService.InputEnded, function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1
+                    or Input.UserInputType == Enum.UserInputType.Touch then
+                        DraggingWindow = false
+                        DragStartMouse = nil
+                        DragStartChatPos = nil
+                    end
+                end)
+
+                Library:Connect(UserInputService.InputChanged, function(Input)
+                    if not DraggingWindow then return end
+                    if Input.UserInputType ~= Enum.UserInputType.MouseMovement
+                    and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                    if not DragStartMouse or not DragStartChatPos then return end
+
+                    local Delta = Input.Position - DragStartMouse
+
+                    Items["Root"]:Tween(
+                        TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+                        {
+                            Position = UDim2New(
+                                DragStartChatPos.X.Scale,
+                                DragStartChatPos.X.Offset + Delta.X,
+                                DragStartChatPos.Y.Scale,
+                                DragStartChatPos.Y.Offset + Delta.Y
+                            )
+                        }
+                    )
+                end)
+            end
+
+            local OldSetOpen = HostPage.Window.SetOpen
+            HostPage.Window.SetOpen = function(Self, Bool)
+                OldSetOpen(Self, Bool)
+                if Items["Root"] and Items["Root"].Instance then
+                    if Bool then
+                        Items["Root"].Instance.Visible = Chat.IsOpen
+                    else
+                        Items["Root"].Instance.Visible = false
+                    end
+                end
+            end
 
             function Chat:SetStatusText(Text)
                 Text = tostring(Text)
-                Items["Status"].Instance.Text = Text
-                local Online = string.find(string.lower(Text), "online", 1, true) ~= nil or string.find(string.lower(Text), "active", 1, true) ~= nil or Text == "Connected"
+                Items["StatusText"].Instance.Text = Text
+                local Online = string.find(string.lower(Text), "online", 1, true) ~= nil
+                    or string.find(string.lower(Text), "active", 1, true) ~= nil
+                    or Text == "Connected"
                 local C = Online and FromRGB(62, 255, 91) or Library.Theme["Inactive Text"]
-                Items["Status"].Instance.TextColor3 = C
-                Items["Dot"].Instance.BackgroundColor3 = Online and FromRGB(62, 255, 91) or FromRGB(120, 120, 125)
-                Items["DotGlow"].Instance.ImageColor3 = Online and FromRGB(62, 255, 91) or FromRGB(120, 120, 125)
+                Items["StatusText"].Instance.TextColor3 = C
+                Items["StatusCircle"].Instance.BackgroundColor3 = Online and FromRGB(62, 255, 91) or FromRGB(255, 210, 62)
+                Items["Glow"].Instance.ImageColor3 = Online and FromRGB(62, 255, 91) or FromRGB(255, 210, 62)
             end
 
             local OnSendPressed = nil
@@ -8395,6 +8574,12 @@ Items["Status"] = Instances:Create("TextLabel", {
             function Chat:ClearInput()
                 Items["Input"].Instance.Text = ""
             end
+
+            function Chat:SetVisibility(Bool)
+                Chat.IsOpen = Bool
+                Items["Root"].Instance.Visible = Bool
+            end
+
             Chat.Special = Chat.Special or {}
             Chat.MeDiscordId = ""
             Chat.MeHandle = ""
@@ -8495,7 +8680,6 @@ Items["Status"] = Instances:Create("TextLabel", {
                 return ChatAvatar("")
             end
 
-
             function Chat:SendMessage(Avatar, Username, Message, IsLocalPlayer)
                 Username = tostring(Username or "User")
                 Message = tostring(Message or "")
@@ -8530,18 +8714,17 @@ Items["Status"] = Instances:Create("TextLabel", {
                         AnchorPoint = Mine and Vector2New(1, 0) or Vector2New(0, 0),
                         Position = Mine and UDim2New(1, 0, 0, 0) or UDim2New(0, 0, 0, 0),
                         Size = UDim2New(0, 34, 0, 34),
-                        ZIndex = 3,
+                        ZIndex = 4,
                         BorderSizePixel = 0,
                         BorderColor3 = FromRGB(0, 0, 0),
                         BackgroundTransparency = 0,
-                        ZIndex = 4,
                         BackgroundColor3 = FromRGB(10, 12, 11)
                     }) Pic:AddToTheme({BackgroundColor3 = "Background"})
 
                     Instances:Create("UICorner", {
                         Parent = Pic.Instance,
                         Name = "\0",
-                        CornerRadius = UDimNew(0, 0)
+                        CornerRadius = UDimNew(0, 4)
                     })
                 end
 
@@ -8560,14 +8743,10 @@ Items["Status"] = Instances:Create("TextLabel", {
                     TextTruncate = Enum.TextTruncate.AtEnd,
                     ZIndex = 3,
                     BorderSizePixel = 0,
-                    TextSize = 16,
+                    TextSize = 15,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })
-                if Mine then
-                    NameLabel:AddToTheme({TextColor3 = "Text"})
-                else
-                    NameLabel:AddToTheme({TextColor3 = "Text"})
-                end
+                NameLabel:AddToTheme({TextColor3 = "Text"})
                 NameLabel.Instance.TextTransparency = 1
 
                 local Bubble = Instances:Create("Frame", {
@@ -8587,7 +8766,7 @@ Items["Status"] = Instances:Create("TextLabel", {
                 Instances:Create("UISizeConstraint", {
                     Parent = Bubble.Instance,
                     Name = "\0",
-                    MaxSize = Vector2New(300, 1000),
+                    MaxSize = Vector2New(280, 1000),
                     MinSize = Vector2New(10, 10)
                 })
 
@@ -8620,7 +8799,7 @@ Items["Status"] = Instances:Create("TextLabel", {
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.XY,
                     ZIndex = 4,
-                    TextSize = 17,
+                    TextSize = 15,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 }) Body:AddToTheme({TextColor3 = "Text"})
                 Body.Instance.TextTransparency = 1
@@ -8650,7 +8829,7 @@ Items["Status"] = Instances:Create("TextLabel", {
                 Items["Send"]:Tween(nil, {BackgroundColor3 = Library:GetDarkerColor(Library.Theme.Accent)})
                 task.delay(0.12, function()
                     pcall(function()
-                        Items["Send"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+                        Items["Send"]:Tween(nil, {BackgroundColor3 = Library.Theme.Accent})
                     end)
                 end)
 
@@ -8671,6 +8850,11 @@ Items["Status"] = Instances:Create("TextLabel", {
                 end
             end)
 
+            Items["CloseButton"]:Connect("MouseButton1Down", function()
+                Chat.IsOpen = false
+                Items["Root"].Instance.Visible = false
+            end)
+
             Items["Messages"]:Connect("ChildAdded", function()
                 task.wait()
                 pcall(function()
@@ -8685,7 +8869,7 @@ Items["Status"] = Instances:Create("TextLabel", {
         end
         
         
-                Library.Pages.MidnightChat = Library.Pages.KiwiChat
+        Library.Pages.MidnightChat = Library.Pages.KiwiChat
 
         Library.MidnightChat = function(self, Data)
             Data = Data or { }
