@@ -8,13 +8,6 @@ else
     return task.wait(9e9)
 end
 
-getgenv()["SCRIPT_KEY"] = script_key
-
-if not getgenv()["SCRIPT_KEY"] then
-    game.Players.LocalPlayer:Kick("Midnight Hub | key not found!")
-    return task.wait(9e9)
-end
-
 if game.PlaceId == 13643807539 or game.PlaceId == 14413475235 or game.PlaceId == 15124180230 then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xdomestos1-art/innnnnnn/refs/heads/main/Hook"))()
 end
