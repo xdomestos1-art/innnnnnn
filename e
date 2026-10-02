@@ -2851,7 +2851,7 @@ end
                         continue
                     end
 
-                    Value.ZIndex = Bool and 10 or 0
+                    Value.ZIndex = Bool and 100 or 0
 
                     if type(TransparencyProperty) == "table" then 
                         for _, Property in TransparencyProperty do 
@@ -3631,7 +3631,7 @@ end
                             continue
                         end
 
-                        Value.ZIndex = Bool and 10 or 0
+                        Value.ZIndex = Bool and 100 or 0
 
                         if type(TransparencyProperty) == "table" then 
                             for _, Property in TransparencyProperty do 
@@ -4523,7 +4523,7 @@ end
                             continue
                         end
 
-                        Value.ZIndex = Bool and 10 or 0
+                        Value.ZIndex = Bool and 100 or 0
 
                         if type(TransparencyProperty) == "table" then 
                             for _, Property in TransparencyProperty do 
@@ -7584,7 +7584,7 @@ end
                             continue
                         end
 
-                        Value.ZIndex = Bool and 10 or 0
+                        Value.ZIndex = Bool and 100 or 0
 
                         if type(TransparencyProperty) == "table" then 
                             for _, Property in TransparencyProperty do 
