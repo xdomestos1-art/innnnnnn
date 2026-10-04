@@ -232,6 +232,7 @@ local Library do
             ["Tune"] = {"Tune.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/Tune.png?raw=true"},
             ["GlobePublic"] = {"GlobePublic.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/GlobePublic.png?raw=true"},
             ["GroupSearch"] = {"GroupSearch.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/GroupSearch.png?raw=true"},
+            ["Pen"] = {"Pen.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/Pen.png?raw=true"},
         },
 
         -- Ignore below
@@ -1681,17 +1682,17 @@ Library.ChatSystem = function(self, Data)
         Instances:Create("UICorner", {
             Parent = Items["Input"].Instance,
             Name = "\0",
-            CornerRadius = UDimNew(0, 8)
+            CornerRadius = UDimNew(0, 4)
         })
 
         Instances:Create("UIStroke", {
             Parent = Items["Input"].Instance,
             Name = "\0",
-            Color = FromRGB(10, 12, 15),
-            Transparency = 0.25,
+            Color = FromRGB(32, 36, 42),
+            Transparency = 0.55,
             Thickness = 1,
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        })
+        }):AddToTheme({Color = "Border"})
 
         Instances:Create("UIPadding", {
             Parent = Items["Input"].Instance,
@@ -7919,14 +7920,14 @@ end
                 Instances:Create("UICorner", {
                     Parent = Items["Root"].Instance,
                     Name = "\0",
-                    CornerRadius = UDimNew(0, 10)
+                    CornerRadius = UDimNew(0, 5)
                 })
 
                 Instances:Create("UIStroke", {
                     Parent = Items["Root"].Instance,
                     Name = "\0",
                     Color = FromRGB(32, 36, 42),
-                    Transparency = 0.55,
+                    Transparency = 0.4,
                     ApplyStrokeMode = Enum.ApplyStrokeMode.Border
                 }):AddToTheme({Color = "Border"})
 
@@ -7935,9 +7936,9 @@ end
                     Name = "\0",
                     ImageColor3 = FromRGB(0, 0, 0),
                     ScaleType = Enum.ScaleType.Slice,
-                    ImageTransparency = 0.78,
+                    ImageTransparency = 0.8999999761581421,
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(1, 40, 1, 40),
+                    Size = UDim2New(1, 25, 1, 25),
                     AnchorPoint = Vector2New(0.5, 0.5),
                     Image = "http://www.roblox.com/asset/?id=18245826428",
                     BackgroundTransparency = 1,
@@ -7950,7 +7951,7 @@ end
                 Items["Topbar"] = Instances:Create("Frame", {
                     Parent = Items["Root"].Instance,
                     Name = "\0",
-                    Size = UDim2New(1, 0, 0, 40),
+                    Size = UDim2New(1, 0, 0, 35),
                     ZIndex = 3,
                     BorderSizePixel = 0,
                     BackgroundColor3 = FromRGB(22, 25, 29)
@@ -7959,7 +7960,7 @@ end
                 Instances:Create("UICorner", {
                     Parent = Items["Topbar"].Instance,
                     Name = "\0",
-                    CornerRadius = UDimNew(0, 10)
+                    CornerRadius = UDimNew(0, 5)
                 })
 
                 Instances:Create("Frame", {
@@ -7967,18 +7968,29 @@ end
                     Name = "\0",
                     AnchorPoint = Vector2New(0, 1),
                     Position = UDim2New(0, 0, 1, 0),
+                    Size = UDim2New(1, 0, 0, 3),
+                    ZIndex = 3,
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(22, 25, 29)
+                }):AddToTheme({BackgroundColor3 = "Inline"})
+
+                Instances:Create("Frame", {
+                    Parent = Items["Topbar"].Instance,
+                    Name = "\0",
+                    AnchorPoint = Vector2New(0, 1),
+                    BackgroundTransparency = 0.4,
+                    Position = UDim2New(0, 0, 1, 0),
                     Size = UDim2New(1, 0, 0, 1),
                     ZIndex = 3,
                     BorderSizePixel = 0,
-                    BackgroundTransparency = 1,
-                    BackgroundColor3 = FromRGB(22, 25, 29)
-                }):AddToTheme({BackgroundColor3 = "Inline"})
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundColor3 = FromRGB(32, 36, 42)
+                }):AddToTheme({BackgroundColor3 = "Border"})
 
                 Instances:Create("UIGradient", {
                     Parent = Items["Topbar"].Instance,
                     Name = "\0",
                     Rotation = 84,
-                    Transparency = NumSequence{NumSequenceKeypoint(0, 0.85), NumSequenceKeypoint(1, 0.95)},
                     Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
                 }):AddToTheme({Color = function()
                     return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
@@ -8019,18 +8031,6 @@ end
                     AutomaticSize = Enum.AutomaticSize.X,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
-
-                Items["Divider"] = Instances:Create("Frame", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    AnchorPoint = Vector2New(0, 1),
-                    Position = UDim2New(0, 0, 1, 0),
-                    Size = UDim2New(1, 0, 0, 1),
-                    ZIndex = 3,
-                    BorderSizePixel = 0,
-                    BackgroundTransparency = 0.4,
-                    BackgroundColor3 = FromRGB(34, 35, 37)
-                }) Items["Divider"]:AddToTheme({BackgroundColor3 = "Border"})
 
                 Items["CloseButton"] = Instances:Create("ImageButton", {
                     Parent = Items["Topbar"].Instance,
@@ -8123,8 +8123,8 @@ end
                     CanvasSize = UDim2New(0, 0, 0, 0),
                     ScrollBarImageColor3 = FromRGB(191, 64, 191),
                     BackgroundTransparency = 1,
-                    Size = UDim2New(1, 0, 1, -96),
-                    Position = UDim2New(0, 0, 0, 40),
+                    Size = UDim2New(1, 0, 1, -83),
+                    Position = UDim2New(0, 0, 0, 35),
                     ZIndex = 3,
                     BorderColor3 = FromRGB(0, 0, 0),
                     BackgroundColor3 = FromRGB(255, 255, 255)
@@ -8149,85 +8149,98 @@ end
                     PaddingLeft = UDimNew(0, 8)
                 })
 
-                Items["InputShadow"] = Instances:Create("ImageLabel", {
+                -- ================= INPUT (topbar gibi, hafif açık kenarlık) =================
+                Items["SendMessage"] = Instances:Create("Frame", {
                     Parent = Items["Root"].Instance,
                     Name = "\0",
-                    ImageColor3 = FromRGB(0, 0, 0),
-                    ScaleType = Enum.ScaleType.Slice,
-                    ImageTransparency = 0.75,
-                    AnchorPoint = Vector2New(0.5, 1),
-                    Position = UDim2New(0.5, 0, 1, -6),
-                    Size = UDim2New(0, 332, 0, 56),
-                    Image = "http://www.roblox.com/asset/?id=18245826428",
-                    BackgroundTransparency = 1,
-                    ZIndex = 2,
+                    AnchorPoint = Vector2New(0, 1),
+                    Position = UDim2New(0, 24, 1, -10),
+                    Size = UDim2New(1, -48, 0, 32),
+                    ZIndex = 3,
                     BorderSizePixel = 0,
+                    ClipsDescendants = true,
                     BorderColor3 = FromRGB(0, 0, 0),
-                    SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
+                    BackgroundColor3 = FromRGB(22, 25, 29)
+                })  Items["SendMessage"]:AddToTheme({BackgroundColor3 = "Inline"})
+
+                Instances:Create("UICorner", {
+                    Parent = Items["SendMessage"].Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(0, 2)
                 })
 
+                Items["InputStroke"] = Instances:Create("UIStroke", {
+                    Parent = Items["SendMessage"].Instance,
+                    Name = "\0",
+                    Color = FromRGB(60, 66, 75),
+                    Transparency = 0.35,
+                    Thickness = 2.5,
+                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                }) Items["InputStroke"]:AddToTheme({Color = function()
+                    return Library:GetLighterColor(Library.Theme.Border, 1.6)
+                end})
+
+                Instances:Create("UIPadding", {
+                    Parent = Items["SendMessage"].Instance,
+                    Name = "\0",
+                    PaddingTop = UDimNew(0, 3),
+                    PaddingBottom = UDimNew(0, 3),
+                    PaddingLeft = UDimNew(0, 9),
+                    PaddingRight = UDimNew(0, 9)
+                })
+
+                Items["InputIcon"] = Instances:Create("ImageLabel", {
+                    Parent = Items["SendMessage"].Instance,
+                    Name = "\0",
+                    ScaleType = Enum.ScaleType.Fit,
+                    AnchorPoint = Vector2New(0, 0.5),
+                    Position = UDim2New(0, 0, 0.5, 0),
+                    Size = UDim2New(0, 20, 0, 20),
+                    ZIndex = 4,
+                    Image = Library:GetImage("Pen"),
+                    ImageTransparency = 0.35,
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                }) Items["InputIcon"]:AddToTheme({ImageColor3 = "Inactive Text"})
+
                 Items["Input"] = Instances:Create("TextBox", {
-                    Parent = Items["Root"].Instance,
+                    Parent = Items["SendMessage"].Instance,
                     Name = "\0",
                     FontFace = Library.Font,
                     Text = "",
                     PlaceholderText = "Type here...",
-                    PlaceholderColor3 = FromRGB(130, 130, 140),
+                    PlaceholderColor3 = FromRGB(185, 185, 185),
                     TextColor3 = FromRGB(255, 255, 255),
                     TextXAlignment = Enum.TextXAlignment.Left,
                     TextYAlignment = Enum.TextYAlignment.Center,
-                    TextSize = 14,
-                    AnchorPoint = Vector2New(0.5, 1),
-                    Position = UDim2New(0.5, 0, 1, -8),
-                    Size = UDim2New(0, 320, 0, 44),
-                    ZIndex = 3,
+                    TextSize = 16,
+                    Size = UDim2New(1, 0, 1, 0),
+                    ZIndex = 4,
                     BorderSizePixel = 0,
                     ClearTextOnFocus = false,
-                    BackgroundColor3 = FromRGB(12, 13, 16)
-                }) Items["Input"]:AddToTheme({BackgroundColor3 = "Background", TextColor3 = "Text"})
-
-                Instances:Create("UICorner", {
-                    Parent = Items["Input"].Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 8)
-                })
-
-                Instances:Create("UIStroke", {
-                    Parent = Items["Input"].Instance,
-                    Name = "\0",
-                    Color = FromRGB(45, 48, 56),
-                    Transparency = 0.5,
-                    Thickness = 1,
-                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-                })
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    BackgroundTransparency = 1,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                }) Items["Input"]:AddToTheme({TextColor3 = "Text", PlaceholderColor3 = "Inactive Text"})
 
                 Instances:Create("UIPadding", {
                     Parent = Items["Input"].Instance,
                     Name = "\0",
-                    PaddingLeft = UDimNew(0, 12),
-                    PaddingRight = UDimNew(0, 34),
-                    PaddingTop = UDimNew(0, 3),
-                    PaddingBottom = UDimNew(0, 3)
-                })
-
-                Items["SendMessageHolder"] = Instances:Create("Frame", {
-                    Parent = Items["Root"].Instance,
-                    Name = "\0",
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Position = UDim2New(0.5, 142, 1, -30),
-                    Size = UDim2New(0, 18, 0, 18),
-                    ZIndex = 4,
-                    BorderSizePixel = 0,
-                    BackgroundTransparency = 1,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
+                    PaddingLeft = UDimNew(0, 26),
+                    PaddingRight = UDimNew(0, 34)
                 })
 
                 Items["Send"] = Instances:Create("ImageButton", {
-                    Parent = Items["SendMessageHolder"].Instance,
+                    Parent = Items["SendMessage"].Instance,
                     Name = "\0",
                     AutoButtonColor = false,
-                    Size = UDim2New(1, 0, 1, 0),
-                    ZIndex = 4,
+                    AnchorPoint = Vector2New(1, 0.5),
+                    Position = UDim2New(1, -4, 0.5, 0),
+                    Size = UDim2New(0, 20, 0, 20),
+                    ImageTransparency = 0.25,
+                    ZIndex = 5,
                     Image = "rbxassetid://93681479181206",
                     ImageColor3 = FromRGB(255, 255, 255),
                     BackgroundTransparency = 1,
@@ -8236,20 +8249,68 @@ end
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })
 
+                -- odak / hover durumuna göre yumuşak animasyon (mor yok, hafif açık kenarlık)
+                local InputFocused, InputHovered = false, false
+
+                local LightBorder = function() return Library:GetLighterColor(Library.Theme.Border, 1.6) end
+
+                local function RefreshInput()
+                    -- odaklanınca/ tıklayınca aydınlanma yok, sadece sabit hafif kenarlık
+                    Items["InputStroke"]:Tween(nil, {Color = LightBorder(), Transparency = 0.35, Thickness = 2.5})
+                    Items["SendMessage"]:Tween(nil, {BackgroundColor3 = Library.Theme.Inline})
+                    Items["InputIcon"]:Tween(nil, {ImageTransparency = 0.35, ImageColor3 = Library.Theme["Inactive Text"]})
+                end
+
+                Items["Input"]:Connect("Focused", function()
+                    InputFocused = true
+                    RefreshInput()
+                end)
+
+                Items["Input"]:Connect("FocusLost", function()
+                    InputFocused = false
+                    RefreshInput()
+                end)
+
+                Items["Input"]:Connect("MouseEnter", function()
+                    InputHovered = true
+                    RefreshInput()
+                end)
+
+                Items["Input"]:Connect("MouseLeave", function()
+                    InputHovered = false
+                    RefreshInput()
+                end)
+
+                -- mesaj yazılınca gönder butonu canlanır
+                local HadText = false
+
+                Items["Input"].Instance:GetPropertyChangedSignal("Text"):Connect(function()
+                    local HasText = Items["Input"].Instance.Text ~= ""
+                    if HasText == HadText then
+                        return
+                    end
+                    HadText = HasText
+
+                    if HasText then
+                        Items["Send"]:Tween(nil, {ImageTransparency = 0, ImageColor3 = FromRGB(255, 255, 255)})
+                        Items["Send"]:Tween(TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2New(0, 24, 0, 24)})
+                        task.delay(0.14, function()
+                            pcall(function()
+                                Items["Send"]:Tween(TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2New(0, 22, 0, 22)})
+                            end)
+                        end)
+                    else
+                        Items["Send"]:Tween(nil, {ImageTransparency = 0.25, ImageColor3 = FromRGB(255, 255, 255)})
+                        Items["Send"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2New(0, 20, 0, 20)})
+                    end
+                end)
+
                 Items["Send"]:OnHover(function()
-                    Items["Send"]:Tween(nil, {ImageColor3 = FromRGB(120, 120, 120)})
+                    Items["Send"]:Tween(nil, {ImageColor3 = FromRGB(255, 255, 255), ImageTransparency = 0})
                 end)
 
                 Items["Send"]:OnHoverLeave(function()
-                    Items["Send"]:Tween(nil, {ImageColor3 = FromRGB(255, 255, 255)})
-                end)
-
-                Items["Input"]:OnHover(function()
-                    Items["Input"]:Tween(nil, {BackgroundColor3 = Library:GetLighterColor(Library.Theme.Background, 1.4)})
-                end)
-
-                Items["Input"]:OnHoverLeave(function()
-                    Items["Input"]:Tween(nil, {BackgroundColor3 = Library.Theme.Background})
+                    Items["Send"]:Tween(nil, {ImageColor3 = FromRGB(255, 255, 255), ImageTransparency = HadText and 0 or 0.25})
                 end)
             end
 
@@ -8592,10 +8653,10 @@ end
                 end
                 LastPush2, LastPushTick2 = TypedNow, os.clock()
 
-                Items["Send"]:Tween(nil, {ImageColor3 = Library.Theme.Accent})
+                Items["Send"]:Tween(nil, {ImageColor3 = FromRGB(210, 210, 215)})
                 task.delay(0.12, function()
                     pcall(function()
-                        Items["Send"]:Tween(nil, {ImageColor3 = FromRGB(210, 210, 215)})
+                        Items["Send"]:Tween(nil, {ImageColor3 = FromRGB(255, 255, 255)})
                     end)
                 end)
 
