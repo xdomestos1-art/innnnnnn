@@ -1,126 +1,3 @@
---[[
-    kiwisense
-    Made by samet
-
-    assign different flags to each element to prevent from configs overriding eachother
-    example is at the bottom
-
-    documentation:
-
-    function Library:Window(Data: table
-        Name/name: string
-        Version/version: string
-        Logo/logo: string
-        Size/size: UDim2
-        FadeSpeed/fadespeed: number/float
-    )
-
-    function Library:Watermark(Text: string, Logo: string)
-    function Library:KeybindsList(void)
-    function Library:Notification(Data: table
-        Name/name: string
-        Description/description: string
-        Duration/duration: number
-        Icon/icon: string
-        IconColor/iconcolor: Color3
-    )
-
-    function Window:Page(
-        Name/name: string
-        Icon/icon: string
-        Columns/columns: number
-        SubPages/subpages: boolean
-    )
-
-    function Page:SubPage(
-        Name/name: string
-        Icon/icon: string
-        Columns/columns: number
-    )
-
-    function Page/SubPage:Section(
-        Name/name: string
-        Icon/icon: string
-        Side/side: number
-    )
-
-    function Section:Toggle(
-        Name/name: string
-        Default/default: boolean
-        Flag/flag: string
-        Callback/callback: function
-    )
-
-    function Toggle:Keybind(
-        Name/name: string
-        Flag/flag: string
-        Mode/mode: string
-        Default/default: Enum.KeyCode/Enum.UserInputType
-        Callback/callback: function
-    )
-
-    function Toggle:Colorpicker(
-        Name/name: string
-        Default/default: Color3
-        Flag/flag: string
-        Alpha/alpha: number/float
-        Callback/callback: function
-    )
-
-    function Section:Slider(
-        Name/name: string
-        Min/min: number
-        Max/max: number
-        Default/default: number
-        Decimals/decimals: number
-        Flag/flag: string
-        Suffix/suffix: string
-        Callback/callback: function
-    )
-
-    function Section:Textbox(
-        Name/name: string
-        Default/default: string
-        Placeholder/placeholder: string
-        Flag/flag: string
-        Callback/callback: function
-    )
-
-    function Section:Dropdown(
-        Name/name: string
-        Items/items: table
-        Default/default: string
-        MaxSize/maxsize: number
-        Flag/flag: string
-        Multi/multi: boolean
-        Callback/callback: function
-    )
-
-    function Section:Button(
-        Name/name: string
-        Callback/callback: function
-    )
-
-    function Section:Label(Name: string, Alignment: string)
-
-    
-    function Label:Keybind(
-        Name/name: string
-        Flag/flag: string
-        Mode/mode: string
-        Default/default: Enum.KeyCode/Enum.UserInputType
-        Callback/callback: function
-    )
-
-    function Label:Colorpicker(
-        Name/name: string
-        Default/default: Color3
-        Flag/flag: string
-        Alpha/alpha: number/float
-        Callback/callback: function
-    )
-]]
-
 local LoadingTick = os.clock()
 
 if getgenv().Library then
@@ -214,10 +91,11 @@ local Library do
         },
 
         Folders = {
-            Directory = "kiwisense",
-            Configs = "kiwisense/Configs",
-            Assets = "kiwisense/Assets",
-            Themes = "kiwisense/Themes"
+            Directory = "MidnightHut",
+            Configs = "MidnightHut/Configs",
+            Assets = "MidnightHut/Assets",
+            Fonts = "MidnightHut/Fonts",
+            Themes = "MidnightHut/Themes"
         },
 
         Images = { -- you're welcome to reupload the images and replace it with your own links
@@ -810,12 +688,12 @@ local Library do
 
     local CustomFont = { } do
         function CustomFont:New(Name, Weight, Style, Data)
-            if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
-                return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
+            if isfile(Library.Folders.Fonts .. "/" .. Name .. ".json") then
+                return Font.new(getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".json"))
             end
 
-            if not isfile(Library.Folders.Assets .. "/" .. Name .. ".ttf") then 
-                writefile(Library.Folders.Assets .. "/" .. Name .. ".ttf", game:HttpGet(Data.Url))
+            if not isfile(Library.Folders.Fonts .. "/" .. Name .. ".ttf") then 
+                writefile(Library.Folders.Fonts .. "/" .. Name .. ".ttf", game:HttpGet(Data.Url))
             end
 
             local FontData = {
@@ -824,25 +702,25 @@ local Library do
                     name = "Regular",
                     weight = Weight,
                     style = Style,
-                    assetId = getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".ttf")
+                    assetId = getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".ttf")
                 } }
             }
 
-            writefile(Library.Folders.Assets .. "/" .. Name .. ".json", HttpService:JSONEncode(FontData))
-            return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
+            writefile(Library.Folders.Fonts .. "/" .. Name .. ".json", HttpService:JSONEncode(FontData))
+            return Font.new(getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".json"))
         end
 
         function CustomFont:Get(Name)
-            if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
-                return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
+            if isfile(Library.Folders.Fonts .. "/" .. Name .. ".json") then
+                return Font.new(getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".json"))
             end
         end
 
-        CustomFont:New("InterBold", 700, "Regular", {
-            Url = "https://github.com/sametexe001/luas/raw/refs/heads/main/fonts/InterBold.ttf"
+        CustomFont:New("InterSemiBold", 700, "Regular", {
+            Url = "https://raw.githubusercontent.com/i77lhm/storage/main/fonts/Inter_28pt-SemiBold.ttf"
         })
 
-        Library.Font = CustomFont:Get("InterBold")
+        Library.Font = CustomFont:Get("InterSemiBold")
     end
 
     local Themes = {
@@ -930,9 +808,9 @@ local Library do
         Parent = Library.Holder.Instance,
         Name = "\0",
         BorderColor3 = FromRGB(0, 0, 0),
-        AnchorPoint = Vector2New(1, 0),
+        AnchorPoint = Vector2New(0, 1),
         BackgroundTransparency = 1,
-        Position = UDim2New(1, 0, 0, 0),
+        Position = UDim2New(0, 0, 1, 0),
         Size = UDim2New(0, 0, 1, 0),
         BorderSizePixel = 0,
         AutomaticSize = Enum.AutomaticSize.X,
@@ -942,16 +820,17 @@ local Library do
     Instances:Create("UIPadding", {
         Parent = Library.NotifHolder.Instance,
         Name = "\0",
-        PaddingBottom = UDimNew(0, 15),
-        PaddingTop = UDimNew(0, 15),
-        PaddingRight = UDimNew(0, 15)
+        PaddingBottom = UDimNew(0, 10),
+        PaddingTop = UDimNew(0, 10),
+        PaddingLeft = UDimNew(0, 8)
     })
 
     Instances:Create("UIListLayout", {
         Parent = Library.NotifHolder.Instance,
         Name = "\0",
         SortOrder = Enum.SortOrder.LayoutOrder,
-        HorizontalAlignment = Enum.HorizontalAlignment.Right,
+        HorizontalAlignment = Enum.HorizontalAlignment.Left,
+        VerticalAlignment = Enum.VerticalAlignment.Bottom,
         Padding = UDimNew(0, 10)
     })
 
@@ -5797,6 +5676,13 @@ end
                 IconColor = Data.IconColor or Data.iconcolor or FromRGB(255, 255, 255),
             }
 
+            local AccentHex = StringFormat("#%02X%02X%02X", MathFloor(Library.Theme.Accent.R * 255), MathFloor(Library.Theme.Accent.G * 255), MathFloor(Library.Theme.Accent.B * 255))
+            local TimerHex = StringFormat("#%02X%02X%02X", MathFloor(Library.Theme["Inactive Text"].R * 255), MathFloor(Library.Theme["Inactive Text"].G * 255), MathFloor(Library.Theme["Inactive Text"].B * 255))
+
+            local TitleText = function(Seconds)
+                return StringFormat("Midnight <font color=\"%s\">Hub</font> <font color=\"%s\">| %ds</font>", AccentHex, TimerHex, Seconds)
+            end
+
             local Items = { } do
                 Items["Notification"] = Instances:Create("Frame", {
                     Parent = Library.NotifHolder.Instance,
@@ -5824,10 +5710,10 @@ end
                 Instances:Create("UIPadding", {
                     Parent = Items["Notification"].Instance,
                     Name = "\0",
-                    PaddingTop = UDimNew(0, 8),
-                    PaddingBottom = UDimNew(0, 8),
-                    PaddingRight = UDimNew(0, 8),
-                    PaddingLeft = UDimNew(0, 8)
+                    PaddingTop = UDimNew(0, 10),
+                    PaddingBottom = UDimNew(0, 12),
+                    PaddingRight = UDimNew(0, 10),
+                    PaddingLeft = UDimNew(0, 10)
                 })
 
                 if Notification.Icon then 
@@ -5840,7 +5726,7 @@ end
                         Image = Library:ResolveIcon(Notification.Icon),
                         BackgroundTransparency = 1,
                         Position = UDim2New(1, 5, 0, 0),
-                        Size = UDim2New(0, 22, 0, 22),
+                        Size = UDim2New(0, 26, 0, 26),
                         BorderSizePixel = 0,
                         BackgroundColor3 = FromRGB(255, 255, 255)
                     })
@@ -5852,7 +5738,8 @@ end
                     FontFace = Library.Font,
                     TextColor3 = FromRGB(255, 255, 255),
                     BorderColor3 = FromRGB(0, 0, 0),
-                    Text = Notification.Name,
+                    Text = TitleText(Data.Duration),
+                    RichText = true,
                     Size = UDim2New(0, 0, 0, 15),
                     BackgroundTransparency = 1,
                     Position = UDim2New(0, 0, 0, 2),
@@ -5869,15 +5756,23 @@ end
                     TextColor3 = FromRGB(255, 255, 255),
                     TextTransparency = 0.5,
                     Text = Notification.Description,
+                    TextWrapped = true,
                     Size = UDim2New(0, 0, 0, 15),
                     BorderSizePixel = 0,
                     BackgroundTransparency = 1,
-                    Position = UDim2New(0, 0, 0, 24),
+                    Position = UDim2New(0, 0, 0, 26),
                     BorderColor3 = FromRGB(0, 0, 0),
-                    AutomaticSize = Enum.AutomaticSize.X,
-                    TextSize = 14,
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    TextSize = 16,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Description"]:AddToTheme({TextColor3 = "Inactive Text"})
+
+                Instances:Create("UISizeConstraint", {
+                    Parent = Items["Description"].Instance,
+                    Name = "\0",
+                    MaxSize = Vector2New(260, math.huge)
+                })
+
             end
 
             local OldSize = Items["Notification"].Instance.AbsoluteSize
@@ -5916,6 +5811,18 @@ end
                         Tween:Create(Value, nil, {BackgroundTransparency = 0}, true)
                     end
                 end
+
+                task.spawn(function()
+                    local remaining = Data.Duration
+                    while remaining > 0 and Items["Title"] and Items["Title"].Instance do
+                        Items["Title"].Instance.Text = TitleText(math.ceil(remaining))
+                        task.wait(1)
+                        remaining = remaining - 1
+                    end
+                    if Items["Title"] and Items["Title"].Instance then
+                        Items["Title"].Instance.Text = TitleText(0)
+                    end
+                end)
 
                 task.delay(Data.Duration, function()
                     for Index, Value in Items["Notification"].Instance:GetDescendants() do
@@ -6199,7 +6106,7 @@ end
             Data = Data or { }
 
             local Window = {
-                Name = Data.Name or Data.name or "kiwisense",
+                Name = Data.Name or Data.name or "Midnight Hub",
                 Logo = Data.Logo or Data.logo or "135215559087473",
                 FadeSpeed = Data.FadeSpeed or Data.fadespeed or 0.2,
                 Version = Data.Version or Data.version or "v1.0.0 alpha",
