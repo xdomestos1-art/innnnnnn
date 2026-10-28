@@ -75,6 +75,7 @@ local Library do
             Directory = "midnighthub",
             Configs = "midnighthub/Configs",
             Assets = "midnighthub/Assets",
+            Fonts = "midnighthub/Fonts",
         },
 
         Images = {
@@ -549,12 +550,12 @@ local Library do
     -- Custom font
     local CustomFont = { } do
         function CustomFont:New(Name, Weight, Style, Data)
-            if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
-                return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
+            if isfile(Library.Folders.Fonts .. "/" .. Name .. ".json") then
+                return Font.new(getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".json"))
             end
 
-            if not isfile(Library.Folders.Assets .. "/" .. Name .. ".ttf") then 
-                writefile(Library.Folders.Assets .. "/" .. Name .. ".ttf", game:HttpGet(Data.Url))
+            if not isfile(Library.Folders.Fonts .. "/" .. Name .. ".ttf") then 
+                writefile(Library.Folders.Fonts .. "/" .. Name .. ".ttf", game:HttpGet(Data.Url))
             end
 
             local FontData = {
@@ -563,25 +564,25 @@ local Library do
                     name = "Regular",
                     weight = Weight,
                     style = Style,
-                    assetId = getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".ttf")
+                    assetId = getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".ttf")
                 } }
             }
 
-            writefile(Library.Folders.Assets .. "/" .. Name .. ".json", HttpService:JSONEncode(FontData))
-            return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
+            writefile(Library.Folders.Fonts .. "/" .. Name .. ".json", HttpService:JSONEncode(FontData))
+            return Font.new(getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".json"))
         end
 
         function CustomFont:Get(Name)
-            if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
-                return Font.new(getcustomasset(Library.Folders.Assets .. "/" .. Name .. ".json"))
+            if isfile(Library.Folders.Fonts .. "/" .. Name .. ".json") then
+                return Font.new(getcustomasset(Library.Folders.Fonts .. "/" .. Name .. ".json"))
             end
         end
 
-        CustomFont:New("PoppinsMedium", 400, "Regular", {
-            Url = "https://github.com/sametexe001/luas/raw/refs/heads/main/fonts/Poppins-Medium.ttf"
+        CustomFont:New("InterSemiBold", 700, "Regular", {
+            Url = "https://raw.githubusercontent.com/i77lhm/storage/main/fonts/Inter_28pt-SemiBold.ttf"
         })
 
-        Library.Font = CustomFont:Get("PoppinsMedium")
+        Library.Font = CustomFont:Get("InterSemiBold")
     end
 
     Library.Holder = Instances:Create("ScreenGui", {
@@ -5329,5 +5330,3 @@ local Library do
         end
     end
 end
-
-return Library
