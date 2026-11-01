@@ -111,6 +111,10 @@ local Library do
             ["GlobePublic"] = {"GlobePublic.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/GlobePublic.png?raw=true"},
             ["GroupSearch"] = {"GroupSearch.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/GroupSearch.png?raw=true"},
             ["Pen"] = {"Pen.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/Pen.png?raw=true"},
+            ["Skull"] = {"skull.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/skull.png?raw=true"},
+            ["Television"] = {"television-simple-fill.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/television-simple-fill.png?raw=true"},
+            ["Shield"] = {"shield.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/shield.png?raw=true"},
+            ["Person"] = {"person-arms-spread-fill.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/person-arms-spread-fill.png?raw=true"},
         },
 
         -- Ignore below
