@@ -91,11 +91,11 @@ local Library do
         },
 
         Folders = {
-            Directory = "MidnightHut",
-            Configs = "MidnightHut/Configs",
-            Assets = "MidnightHut/Assets",
-            Fonts = "MidnightHut/Fonts",
-            Themes = "MidnightHut/Themes"
+            Directory = "MidnightRivals",
+            Configs = "MidnightRivals/Configs",
+            Assets = "MidnightRivals/Assets",
+            Fonts = "MidnightRivals/Fonts",
+            Themes = "MidnightRivals/Themes"
         },
 
         Images = { -- you're welcome to reupload the images and replace it with your own links
@@ -6622,6 +6622,113 @@ end
                     return Data
                 end
 
+                local SavedConfigPath = "MidnightRivals/unlocker_config.json"
+
+                local function ReadSavedConfig()
+                    local Raw
+                    pcall(function()
+                        if isfile and isfile(SavedConfigPath) then
+                            Raw = readfile(SavedConfigPath)
+                        end
+                    end)
+
+                    if type(Raw) ~= "string" or Raw == "" then
+                        return
+                    end
+
+                    local Decoded
+                    pcall(function()
+                        Decoded = game:GetService("HttpService"):JSONDecode(Raw)
+                    end)
+
+                    return type(Decoded) == "table" and Decoded or nil
+                end
+
+                local PendingRestore = { }
+                local AppliedKeys = { }
+                local RestoreAttempts = { }
+
+                local function RestoreFromConfig(Config)
+                    if type(Config) ~= "table" then
+                        return
+                    end
+
+                    local Equipped = Equipment()
+
+                    if type(Config.equipped) == "table" then
+                        for Weapon, Categories in Config.equipped do
+                            if type(Categories) == "table" then
+                                for Category, Saved in Categories do
+                                    if type(Saved) == "table" and type(Saved.Name) == "string" then
+                                        local Key = Weapon .. "|" .. Category
+                                        local Current = Equipped[Weapon] and Equipped[Weapon][Category]
+
+                                        if Current and Current.Name then
+                                            PendingRestore[Key] = nil
+                                        else
+                                            local Cloned = CloneCosmetic(Saved.Name, Category, Saved.Inverted, Saved.OnlyUseFavorites)
+                                            if Cloned then
+                                                Equipped[Weapon] = Equipped[Weapon] or { }
+                                                Equipped[Weapon][Category] = Cloned
+                                                PendingRestore[Key] = nil
+                                            else
+                                                PendingRestore[Key] = Saved
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+
+                    if type(Config.favorites) == "table" then
+                        local Favs = Favorites()
+
+                        for Weapon, Names in Config.favorites do
+                            if type(Names) == "table" then
+                                for Name in Names do
+                                    if Cosmetics[Name] then
+                                        Favs[Weapon] = Favs[Weapon] or { }
+                                        Favs[Weapon][Name] = true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+                local function GetLocalFighter()
+                    local Fighter
+                    pcall(function()
+                        local Module = Controllers:FindFirstChild("FighterController")
+                        if not Module then
+                            return
+                        end
+
+                        local Controller = require(Module)
+                        Fighter = Controller.LocalFighter or (Controller.GetFighter and Controller:GetFighter(LocalPlayer))
+                    end)
+
+                    return Fighter
+                end
+
+                local function FighterItemsByWeapon(Fighter)
+                    local Items = { }
+                    if not (Fighter and Fighter.Items) then
+                        return Items
+                    end
+
+                    pcall(function()
+                        for _, Item in Fighter.Items or { } do
+                            if type(Item) == "table" and type(Item.Name) == "string" then
+                                Items[Item.Name] = Item
+                            end
+                        end
+                    end)
+
+                    return Items
+                end
+
                 local function DisplayNameOf(Name, Data)
                     return tostring((Data and (Data.DisplayName or Data.Name)) or Name or "")
                 end
@@ -6762,6 +6869,7 @@ end
                     end
 
                     if getgenv().ForceCosmeticUpdate then
+                        AppliedKeys[Weapon .. "|" .. CosmeticType] = true
                         pcall(getgenv().ForceCosmeticUpdate, Weapon, CosmeticType)
                     end
 
@@ -6817,6 +6925,8 @@ end
                     Reset = function()
                         table.clear(Equipment())
                         table.clear(Favorites())
+                        table.clear(AppliedKeys)
+                        table.clear(PendingRestore)
 
                         Replicate("WeaponInventory", "CosmeticInventory", "FavoritedCosmetics")
                         SaveConfig()
@@ -6864,6 +6974,68 @@ end
                 getgenv().MidnightCosmeticBackend = Backend
                 shared.MidnightCosmeticChanger = Backend
                 getgenv().MidnightCosmeticChanger = Backend
+
+                Library:Thread(function()
+                    local Snapshot = ReadSavedConfig()
+                    if Snapshot then
+                        RestoreFromConfig(Snapshot)
+                    end
+
+                    local LastFighter = nil
+
+                    while true do
+                        task.wait(0.5)
+
+                        if next(PendingRestore) and Snapshot then
+                            RestoreFromConfig(Snapshot)
+                        end
+
+                        local Equipped = Equipment()
+
+                        if getgenv().ForceCosmeticUpdate and next(Equipped) then
+                            local Fighter = GetLocalFighter()
+
+                            if Fighter ~= LastFighter then
+                                LastFighter = Fighter
+                                table.clear(AppliedKeys)
+                                table.clear(RestoreAttempts)
+                            end
+
+                            if Fighter then
+                                local Items = FighterItemsByWeapon(Fighter)
+                                local Applied = false
+
+                                for Weapon, Categories in Equipped do
+                                    local Item = Items[Weapon]
+
+                                    if Item then
+                                        for Category in Categories do
+                                            local Key = Weapon .. "|" .. Category
+
+                                            if not AppliedKeys[Key] then
+                                                if Item.ViewModel then
+                                                    AppliedKeys[Key] = true
+                                                    Applied = true
+                                                    pcall(getgenv().ForceCosmeticUpdate, Weapon, Category)
+                                                else
+                                                    RestoreAttempts[Key] = (RestoreAttempts[Key] or 0) + 1
+
+                                                    if RestoreAttempts[Key] >= 20 then
+                                                        AppliedKeys[Key] = true
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+
+                                if Applied then
+                                    Replicate("WeaponInventory", "CosmeticInventory")
+                                end
+                            end
+                        end
+                    end
+                end)
 
                 return Backend
             end
