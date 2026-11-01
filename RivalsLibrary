@@ -7359,7 +7359,7 @@ end
                     Parent = CosmeticItem.Instance,
                     Name = "\0",
                     FontFace = Library.Font,
-                    Text = "Click to equip, right-click to favorite.",
+                    Text = "",
                     TextColor3 = HintColor,
                     TextSize = 13,
                     TextWrapped = true,
