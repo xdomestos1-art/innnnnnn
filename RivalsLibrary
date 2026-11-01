@@ -6916,12 +6916,12 @@ end
                     Instances:Create("UICorner", {
                         Parent = Box.Instance,
                         Name = "\0",
-                        CornerRadius = UDimNew(0, 4)
+                        CornerRadius = UDimNew(0, 5)
                     })
                     Instances:Create("UIPadding", {
                         Parent = Box.Instance,
                         Name = "\0",
-                        PaddingLeft = UDimNew(0, 6)
+                        PaddingLeft = UDimNew(0, 8)
                     })
                     return Box
                 end
@@ -6943,7 +6943,7 @@ end
                     return {
                         ColumnCount = ColumnCount,
                         TileWidth = TileWidth,
-                        TileHeight = TileWidth + 6
+                        TileHeight = MathFloor(TileWidth * 1.22)
                     }
                 end
 
@@ -7000,11 +7000,11 @@ end
                     FontFace = Library.Font,
                     Text = "Select Weapon",
                     TextColor3 = TitleTextColor,
-                    TextSize = 15,
+                    TextSize = 17,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     BackgroundTransparency = 1,
                     Position = UDim2FromOffset(10, 10),
-                    Size = UDim2New(1, -20, 0, 20),
+                    Size = UDim2New(1, -20, 0, 22),
                     ZIndex = 3
                 }):AddToTheme({TextColor3 = "Text"})
 
@@ -7014,11 +7014,11 @@ end
                     FontFace = Library.Font,
                     Text = "Select Weapon Skin",
                     TextColor3 = TitleTextColor,
-                    TextSize = 15,
+                    TextSize = 17,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     BackgroundTransparency = 1,
                     Position = UDim2FromOffset(10, 10),
-                    Size = UDim2New(1, -20, 0, 20),
+                    Size = UDim2New(1, -20, 0, 22),
                     ZIndex = 3
                 }):AddToTheme({TextColor3 = "Text"})
 
@@ -7027,7 +7027,7 @@ end
                     Name = "\0",
                     BackgroundTransparency = 1,
                     Position = UDim2FromOffset(10, 36),
-                    Size = UDim2New(1, -20, 0, 28),
+                    Size = UDim2New(1, -20, 0, 30),
                     ZIndex = 3
                 })
 
@@ -7056,7 +7056,7 @@ end
                         Name = "\0",
                         FontFace = Library.Font,
                         Text = Mode,
-                        TextSize = 14,
+                        TextSize = 15,
                         AutoButtonColor = false,
                         BorderSizePixel = 0,
                         Size = UDim2New(0, 0, 1, 0),
@@ -7088,17 +7088,20 @@ end
                 RefreshModeButtons()
 
                 local function CreateGridSection(Card, Label, SearchKey, Placeholder, PositionY, GridHeight)
+                    local LabelWidth = MathMax(64, MathFloor(Card.AbsoluteSize.X * 0.24))
+                    local SearchHeight = 30
+
                     NewText({
                         Parent = Card,
                         Name = "\0",
                         FontFace = Library.Font,
                         Text = Label,
                         TextColor3 = HintColor,
-                        TextSize = 13,
+                        TextSize = 15,
                         TextXAlignment = Enum.TextXAlignment.Left,
                         BackgroundTransparency = 1,
                         Position = UDim2FromOffset(10, PositionY),
-                        Size = UDim2New(0.3, -10, 0, 28),
+                        Size = UDim2FromOffset(LabelWidth, SearchHeight),
                         ZIndex = 3
                     }):AddToTheme({TextColor3 = "Inactive Text"})
 
@@ -7110,13 +7113,13 @@ end
                         PlaceholderColor3 = HintColor,
                         Text = "",
                         TextColor3 = TitleTextColor,
-                        TextSize = 14,
+                        TextSize = 15,
                         TextXAlignment = Enum.TextXAlignment.Left,
                         ClearTextOnFocus = false,
                         MultiLine = false,
                         BorderSizePixel = 0,
-                        Position = UDim2New(0.3, 8, 0, PositionY),
-                        Size = UDim2New(0.7, -18, 0, 28),
+                        Position = UDim2FromOffset(10 + LabelWidth + 6, PositionY),
+                        Size = UDim2New(1, -(26 + LabelWidth), 0, SearchHeight),
                         BackgroundColor3 = FromRGB(34, 39, 45),
                         ZIndex = 3
                     })  Search:AddToTheme({BackgroundColor3 = "Element", TextColor3 = "Text", PlaceholderColor3 = "Inactive Text"})
@@ -7129,7 +7132,7 @@ end
                         ScrollBarThickness = 4,
                         AutomaticCanvasSize = Enum.AutomaticSize.None,
                         CanvasSize = UDim2New(0, 0, 0, 0),
-                        Position = UDim2FromOffset(10, PositionY + 34),
+                        Position = UDim2FromOffset(10, PositionY + SearchHeight + 6),
                         Size = UDim2New(1, -20, 0, GridHeight),
                         BackgroundColor3 = FromRGB(0, 0, 0),
                         ZIndex = 3
@@ -7147,19 +7150,19 @@ end
                     return Grid
                 end
 
-                local WeaponGrid = CreateGridSection(ChangerItem.Instance, "Weapons", "WeaponSearch", "Search weapons...", 40, 388).Instance
-                local CosmeticGrid = CreateGridSection(CosmeticItem.Instance, "Skins", "CosmeticSearch", "Search skins...", 74, 362).Instance
+                local WeaponGrid = CreateGridSection(ChangerItem.Instance, "Weapons", "WeaponSearch", "Search weapons...", 40, 372).Instance
+                local CosmeticGrid = CreateGridSection(CosmeticItem.Instance, "Skins", "CosmeticSearch", "Search skins...", 68, 352).Instance
 
                 local ResetButton = Instances:Create("TextButton", {
                     Parent = ChangerItem.Instance,
                     Name = "\0",
                     FontFace = Library.Font,
                     Text = "Reset to defaults",
-                    TextSize = 14,
+                    TextSize = 15,
                     AutoButtonColor = false,
                     BorderSizePixel = 0,
-                    Position = UDim2FromOffset(10, 470),
-                    Size = UDim2New(1, -20, 0, 28),
+                    Position = UDim2FromOffset(10, 456),
+                    Size = UDim2New(1, -20, 0, 30),
                     BackgroundColor3 = FromRGB(34, 39, 45),
                     ZIndex = 3
                 })  ResetButton:AddToTheme({BackgroundColor3 = "Element", TextColor3 = "Text"})
@@ -7186,12 +7189,12 @@ end
                     FontFace = Library.Font,
                     Text = "Click to equip, right-click to favorite.",
                     TextColor3 = HintColor,
-                    TextSize = 12,
+                    TextSize = 13,
                     TextWrapped = true,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     BackgroundTransparency = 1,
-                    Position = UDim2FromOffset(10, 478),
-                    Size = UDim2New(1, -20, 0, 20),
+                    Position = UDim2FromOffset(10, 464),
+                    Size = UDim2New(1, -20, 0, 22),
                     ZIndex = 3
                 }):AddToTheme({TextColor3 = "Inactive Text"})
 
@@ -7225,7 +7228,7 @@ end
                     local ColumnCount = Metrics.ColumnCount
                     local TileWidth = Metrics.TileWidth
                     local TileHeight = Metrics.TileHeight
-                    local IconHeight = MathFloor(TileHeight * 0.75)
+                    local IconHeight = MathFloor(TileHeight * 0.78)
 
                     local Tile = Instances:Create("TextButton", {
                         Parent = Grid,
@@ -7263,7 +7266,7 @@ end
                         FontFace = Library.Font,
                         Text = tostring(Entry.Display or Entry.Name or ""),
                         TextColor3 = TitleTextColor,
-                        TextSize = 13,
+                        TextSize = 14,
                         TextWrapped = true,
                         BackgroundTransparency = 1,
                         Position = UDim2FromOffset(5, IconHeight + 6),
@@ -7278,8 +7281,8 @@ end
                             Image = "rbxassetid://9080568477801",
                             ScaleType = Enum.ScaleType.Fit,
                             BackgroundTransparency = 1,
-                            Position = UDim2FromOffset(TileWidth - 27, 6),
-                            Size = UDim2FromOffset(20, 20),
+                            Position = UDim2FromOffset(TileWidth - 33, 8),
+                            Size = UDim2FromOffset(24, 24),
                             ZIndex = 5
                         })
                     end
@@ -7316,7 +7319,7 @@ end
                             FontFace = Library.Font,
                             Text = "Waiting for cosmetic backend...",
                             TextColor3 = HintColor,
-                            TextSize = 12,
+                            TextSize = 14,
                             BackgroundTransparency = 1,
                             Size = UDim2New(1, 0, 0, 20),
                             ZIndex = 4
