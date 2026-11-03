@@ -730,7 +730,7 @@ local Library do
 
     local Themes = {
         ["Preset"] = {
-            ["Background"] = FromRGB(255, 255, 255),
+            ["Background"] = FromRGB(16, 18, 21),
             ["Inline"] = FromRGB(22, 25, 29),
             ["Shadow"] = FromRGB(0, 0, 0),
             ["Text"] = FromRGB(255, 255, 255),
@@ -738,7 +738,7 @@ local Library do
             ["Dark Gradient"] = FromRGB(211, 211, 211),
             ["Inactive Text"] = FromRGB(185, 185, 185),
             ["Element"] = FromRGB(34, 39, 45),
-            ["Accent"] = FromRGB(191, 64, 191),
+            ["Accent"] = FromRGB(255, 0, 0),
             ["Border"] = FromRGB(32, 36, 42)
         },
 
