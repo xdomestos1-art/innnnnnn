@@ -116,6 +116,7 @@ local Library do
             ["Shield"] = {"shield.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/shield.png?raw=true"},
             ["Person"] = {"person-arms-spread-fill.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/person-arms-spread-fill.png?raw=true"},
             ["Star"] = {"shooting-star-fill.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/shooting-star-fill.png?raw=true"},
+            ["Library"] = {"library-plus-filled.png", "https://github.com/xdomestos1-art/innnnnnn/blob/main/icons/library-plus-filled.png?raw=true"},
         },
 
         -- Ignore below
