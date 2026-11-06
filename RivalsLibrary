@@ -739,7 +739,7 @@ local Library do
             ["Dark Gradient"] = FromRGB(211, 211, 211),
             ["Inactive Text"] = FromRGB(185, 185, 185),
             ["Element"] = FromRGB(34, 39, 45),
-            ["Accent"] = FromRGB(255, 0, 0),
+            ["Accent"] = FromRGB(191, 64, 191),
             ["Border"] = FromRGB(32, 36, 42)
         },
 
@@ -886,6 +886,30 @@ local Library do
         return "rbxassetid://" .. Icon
     end
 
+    Library.CosmeticBlacklist = {
+        agent = true,
+        vandal = true,
+        sova = true,
+        jett = true,
+        sky = true,
+        skye = true,
+        raze = true,
+        reaver = true,
+        operator = true,
+        spike = true
+    }
+
+    Library.IsJunkCosmetic = function(self, Name, Display)
+        local function Key(Value)
+            local Normalized = StringLower(tostring(Value or "")):gsub("[^%a]", "")
+            Normalized = Normalized:gsub("skin$", ""):gsub("wrap$", ""):gsub("charm$", ""):gsub("finisher$", "")
+
+            return Normalized
+        end
+
+        return self.CosmeticBlacklist[Key(Name)] == true or self.CosmeticBlacklist[Key(Display)] == true
+    end
+
     Library.Round = function(self, Number, Float)
         local Multiplier = 1 / (Float or 1)
         return MathFloor(Number * Multiplier) / Multiplier
@@ -997,15 +1021,19 @@ local Library do
                     continue
                 end
 
-                if type(Value) == "table" and Value.Key then 
-                    SetFunction(Value)
-                elseif type(Value) == "table" and Value.Color then
-                    SetFunction(Value.Color, Value.Alpha)
-                else
-                    SetFunction(Value)
-                end
+                pcall(function()
+                    if type(Value) == "table" and Value.Key then 
+                        SetFunction(Value)
+                    elseif type(Value) == "table" and Value.Color then
+                        SetFunction(Value.Color, Value.Alpha)
+                    else
+                        SetFunction(Value)
+                    end
+                end)
             end
         end)
+
+        Library:QueueThemeRefresh()
 
         return Success, Result
     end
@@ -1084,12 +1112,42 @@ local Library do
         for _, Item in self.ThemeItems do
             for Property, Value in Item.Properties do
                 if type(Value) == "string" and Value == Theme then
-                    Item.Item[Property] = Color
+                    pcall(function()
+                        Item.Item[Property] = Color
+                    end)
                 elseif type(Value) == "function" then
-                    Item.Item[Property] = Value()
+                    pcall(function()
+                        Item.Item[Property] = Value()
+                    end)
                 end
             end
         end
+    end
+
+    Library.ApplyThemeFromFlags = function(self)
+        for Index in self.Theme do
+            local Flag = self.Flags["ColorpickerTheme" .. Index]
+
+            if type(Flag) == "table" and type(Flag.Color) == "string" then
+                local Success, Color = pcall(FromHex, Flag.Color)
+
+                if Success and typeof(Color) == "Color3" then
+                    self:ChangeTheme(Index, Color)
+                end
+            end
+        end
+    end
+
+    -- widgets tween to the accent color when their flag is restored; those tweens
+    -- keep running after ChangeTheme and land on the previous theme, so recolor
+    -- again once they are done
+    Library.QueueThemeRefresh = function(self)
+        self:ApplyThemeFromFlags()
+
+        task.spawn(function()
+            task.wait(0.4)
+            self:ApplyThemeFromFlags()
+        end)
     end
 
     Library.IsMouseOverFrame = function(self, Frame, XOffset, YOffset)
@@ -1133,6 +1191,8 @@ local Library do
                 end
             end
         end)
+
+        Library:QueueThemeRefresh()
 
         return Success, Result
     end
@@ -1987,6 +2047,959 @@ Library.ChatSystem = function(self, Data)
 
     return GlobalChat 
 end
+
+    Library.Pages.CosmeticChanger = function(Window, Data)
+        Data = Data or { }
+
+        if not Window or not Window.Items or not Window.Items["MainFrame"] then
+            return nil
+        end
+
+        Library:StartCosmeticBackend()
+
+        local UDim2FromOffset = UDim2.fromOffset
+
+        local ChangerState = {
+            Mode = "Skin",
+            Modes = { "Skin", "Wrap", "Charm", "Finisher" },
+            WeaponSearch = "",
+            CosmeticSearch = "",
+            SelectedWeapon = nil,
+            SelectedCosmetic = nil
+        }
+
+        local PanelWidth = 424
+        local PanelHeight = 530
+        local PanelPadding = 12
+        local GridColumns = 5
+        local GridGap = 8
+        local GridInset = 2
+        local TileSize = 72
+        local RowGap = 10
+        local SearchHeight = 26
+        local HintRowHeight = 25
+        local ButtonRowHeight = 32
+        local GridHeight = TileSize * 2 + GridGap + GridInset * 2
+
+        local TitleTextColor = Library.Theme.Text
+        local HintColor = Library.Theme["Inactive Text"]
+
+        local Changer = {
+            State = ChangerState,
+            Items = { },
+            IsOpen = true
+        }
+
+        local Root = Instances:Create("Frame", {
+            Parent = Library.Holder.Instance,
+            Name = "\0",
+            BorderSizePixel = 0,
+            Position = UDim2New(0, 0, 0, 0),
+            Size = UDim2FromOffset(PanelWidth, PanelHeight),
+            BackgroundColor3 = FromRGB(16, 18, 21),
+            ZIndex = 2
+        })  Root:AddToTheme({BackgroundColor3 = "Background"})
+
+        Changer.Items["Root"] = Root
+
+        Root:MakeDraggable()
+
+        Instances:Create("UICorner", {
+            Parent = Root.Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(0, 5)
+        })
+
+        Instances:Create("UIStroke", {
+            Parent = Root.Instance,
+            Name = "\0",
+            Color = FromRGB(32, 36, 42),
+            Transparency = 0.4,
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        }):AddToTheme({Color = "Border"})
+
+        Instances:Create("ImageLabel", {
+            Parent = Root.Instance,
+            Name = "\0",
+            ImageColor3 = FromRGB(0, 0, 0),
+            ScaleType = Enum.ScaleType.Slice,
+            ImageTransparency = 0.9,
+            Size = UDim2New(1, 25, 1, 25),
+            AnchorPoint = Vector2New(0.5, 0.5),
+            Image = "http://www.roblox.com/asset/?id=18245826428",
+            BackgroundTransparency = 1,
+            Position = UDim2New(0.5, 0, 0.5, 0),
+            ZIndex = 1,
+            BorderSizePixel = 0,
+            SliceCenter = RectNew(Vector2New(21, 21), Vector2New(79, 79))
+        }):AddToTheme({ImageColor3 = "Shadow"})
+
+        local Topbar = Instances:Create("Frame", {
+            Parent = Root.Instance,
+            Name = "\0",
+            BorderSizePixel = 0,
+            Size = UDim2New(1, 0, 0, 35),
+            BackgroundColor3 = FromRGB(22, 25, 29),
+            ZIndex = 3
+        })  Topbar:AddToTheme({BackgroundColor3 = "Inline"})
+
+        Instances:Create("UICorner", {
+            Parent = Topbar.Instance,
+            Name = "\0",
+            CornerRadius = UDimNew(0, 5)
+        })
+
+        Instances:Create("UIGradient", {
+            Parent = Topbar.Instance,
+            Name = "\0",
+            Rotation = 84,
+            Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+        }):AddToTheme({Color = function()
+            return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+        end})
+
+        Instances:Create("Frame", {
+            Parent = Topbar.Instance,
+            Name = "\0",
+            AnchorPoint = Vector2New(0, 1),
+            BorderSizePixel = 0,
+            Position = UDim2New(0, 0, 1, 0),
+            Size = UDim2New(1, 0, 0, 3),
+            BackgroundColor3 = FromRGB(22, 25, 29),
+            ZIndex = 3
+        }):AddToTheme({BackgroundColor3 = "Inline"})
+
+        Instances:Create("Frame", {
+            Parent = Topbar.Instance,
+            Name = "\0",
+            AnchorPoint = Vector2New(0, 1),
+            BackgroundTransparency = 0.4,
+            BorderSizePixel = 0,
+            Position = UDim2New(0, 0, 1, 0),
+            Size = UDim2New(1, 0, 0, 1),
+            BackgroundColor3 = FromRGB(32, 36, 42),
+            ZIndex = 3
+        }):AddToTheme({BackgroundColor3 = "Border"})
+
+        local function NewText(Properties)
+            return Instances:Create("TextLabel", Properties)
+        end
+
+        Instances:Create("ImageLabel", {
+            Parent = Topbar.Instance,
+            Name = "\0",
+            Image = Library:GetImage("Library"),
+            ImageColor3 = Library.Theme.Accent,
+            ScaleType = Enum.ScaleType.Fit,
+            BackgroundTransparency = 1,
+            AnchorPoint = Vector2New(0, 0.5),
+            Position = UDim2New(0, 9, 0.5, 0),
+            Size = UDim2FromOffset(20, 20),
+            BorderSizePixel = 0,
+            ZIndex = 3
+        }):AddToTheme({ImageColor3 = "Accent"})
+
+        NewText({
+            Parent = Topbar.Instance,
+            Name = "\0",
+            FontFace = Library.Font,
+            Text = "Cosmetic Changer",
+            TextColor3 = TitleTextColor,
+            TextSize = 14,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            BackgroundTransparency = 1,
+            AnchorPoint = Vector2New(0, 0.5),
+            Position = UDim2New(0, 36, 0.5, 0),
+            Size = UDim2New(1, -68, 0, 15),
+            ZIndex = 3
+        }):AddToTheme({TextColor3 = "Text"})
+
+        local CloseButton = Instances:Create("ImageButton", {
+            Parent = Topbar.Instance,
+            Name = "\0",
+            ScaleType = Enum.ScaleType.Fit,
+            BorderColor3 = FromRGB(0, 0, 0),
+            Size = UDim2New(0, 17, 0, 17),
+            AutoButtonColor = false,
+            AnchorPoint = Vector2New(1, 0.5),
+            Image = "rbxassetid://76001605964586",
+            BackgroundTransparency = 1,
+            Position = UDim2New(1, -7, 0.5, 0),
+            ZIndex = 3,
+            BorderSizePixel = 0,
+            BackgroundColor3 = FromRGB(255, 255, 255)
+        })  CloseButton:AddToTheme({ImageColor3 = "Image"})
+
+        Changer.Items["CloseButton"] = CloseButton
+
+        local Content = Instances:Create("Frame", {
+            Parent = Root.Instance,
+            Name = "\0",
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            Position = UDim2New(0, PanelPadding, 0, 35 + PanelPadding),
+            Size = UDim2New(1, -PanelPadding * 2, 1, -(35 + PanelPadding * 2)),
+            ZIndex = 3
+        })
+
+        Instances:Create("UIListLayout", {
+            Parent = Content.Instance,
+            Name = "\0",
+            Padding = UDimNew(0, RowGap),
+            SortOrder = Enum.SortOrder.LayoutOrder
+        })
+
+        local LayoutOrder = 0
+
+        local function NewRow(Height)
+            LayoutOrder += 1
+
+            return Instances:Create("Frame", {
+                Parent = Content.Instance,
+                Name = "\0",
+                BorderSizePixel = 0,
+                BackgroundTransparency = 1,
+                Size = UDim2New(1, 0, 0, Height),
+                LayoutOrder = LayoutOrder,
+                ZIndex = 4
+            })
+        end
+
+        local function NewLibraryButton(Parent, Text, Callback)
+            local Button = Instances:Create("TextButton", {
+                Parent = Parent,
+                Name = "\0",
+                FontFace = Library.Font,
+                Text = "",
+                AutoButtonColor = false,
+                BorderSizePixel = 0,
+                Size = UDim2New(1, 0, 1, 0),
+                BackgroundColor3 = FromRGB(34, 39, 45),
+                ZIndex = 4
+            })  Button:AddToTheme({BackgroundColor3 = "Element"})
+
+            Instances:Create("UICorner", {
+                Parent = Button.Instance,
+                Name = "\0",
+                CornerRadius = UDimNew(0, 4)
+            })
+
+            Instances:Create("UIGradient", {
+                Parent = Button.Instance,
+                Name = "\0",
+                Rotation = 84,
+                Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+            }):AddToTheme({Color = function()
+                return RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, Library.Theme["Dark Gradient"])}
+            end})
+
+            Instances:Create("TextLabel", {
+                Parent = Button.Instance,
+                Name = "\0",
+                FontFace = Library.Font,
+                Text = Text,
+                TextColor3 = TitleTextColor,
+                TextSize = 14,
+                BorderSizePixel = 0,
+                BackgroundTransparency = 1,
+                Size = UDim2New(1, 0, 1, 0),
+                ZIndex = 5
+            }):AddToTheme({TextColor3 = "Text"})
+
+            Button:OnHover(function()
+                Button:Tween(nil, {BackgroundColor3 = Library:GetLighterColor(Library.Theme.Element, 1.45)})
+            end)
+
+            Button:OnHoverLeave(function()
+                Button:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+            end)
+
+            Button:Connect("MouseButton1Down", function()
+                Button:ChangeItemTheme({BackgroundColor3 = "Accent"})
+                Button:Tween(nil, {BackgroundColor3 = Library.Theme.Accent})
+
+                task.wait(0.1)
+                Library:SafeCall(Callback)
+
+                Button:ChangeItemTheme({BackgroundColor3 = "Element"})
+                Button:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+            end)
+
+            return Button
+        end
+
+        local function NewSearchBox(Parent, Placeholder, OnChanged)
+            local Holder = Instances:Create("Frame", {
+                Parent = Parent,
+                Name = "\0",
+                BorderSizePixel = 0,
+                Size = UDim2New(1, 0, 1, 0),
+                BackgroundColor3 = FromRGB(34, 39, 45),
+                ZIndex = 4
+            })  Holder:AddToTheme({BackgroundColor3 = "Element"})
+
+            Instances:Create("UICorner", {
+                Parent = Holder.Instance,
+                Name = "\0",
+                CornerRadius = UDimNew(0, 4)
+            })
+
+            Instances:Create("UIGradient", {
+                Parent = Holder.Instance,
+                Name = "\0",
+                Rotation = 84,
+                Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(211, 211, 211))}
+            })
+
+            Instances:Create("UIPadding", {
+                Parent = Holder.Instance,
+                Name = "\0",
+                PaddingLeft = UDimNew(0, 8),
+                PaddingRight = UDimNew(0, 8)
+            })
+
+            Holder:OnHover(function()
+                Holder:Tween(nil, {BackgroundColor3 = Library:GetLighterColor(Library.Theme.Element, 1.45)})
+            end)
+
+            Holder:OnHoverLeave(function()
+                Holder:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+            end)
+
+            local Box = Instances:Create("TextBox", {
+                Parent = Holder.Instance,
+                Name = "\0",
+                FontFace = Library.Font,
+                Text = "",
+                PlaceholderText = Placeholder,
+                PlaceholderColor3 = HintColor,
+                TextColor3 = TitleTextColor,
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ClearTextOnFocus = false,
+                MultiLine = false,
+                BorderSizePixel = 0,
+                BackgroundTransparency = 1,
+                Size = UDim2New(1, 0, 1, 0),
+                ZIndex = 5
+            })  Box:AddToTheme({TextColor3 = "Text", PlaceholderColor3 = "Inactive Text"})
+
+            Box.Instance:GetPropertyChangedSignal("Text"):Connect(function()
+                OnChanged(Box.Instance.Text)
+            end)
+
+            return Holder, Box
+        end
+
+        local GridTileCounts = { }
+
+        local function NewGridRow(Height)
+            local Row = NewRow(Height)
+
+            local Grid = Instances:Create("ScrollingFrame", {
+                Parent = Row.Instance,
+                Name = "\0",
+                BorderSizePixel = 0,
+                BackgroundTransparency = 1,
+                ScrollBarThickness = 3,
+                ScrollBarImageTransparency = 0.4,
+                AutomaticCanvasSize = Enum.AutomaticSize.None,
+                CanvasSize = UDim2New(0, 0, 0, 0),
+                Size = UDim2New(1, 0, 1, 0),
+                BackgroundColor3 = FromRGB(0, 0, 0),
+                ClipsDescendants = true,
+                ZIndex = 4
+            })  Grid:AddToTheme({ScrollBarImageColor3 = "Border"})
+
+            GridTileCounts[Grid.Instance] = 0
+
+            return Grid.Instance, Row
+        end
+
+        local function UpdateGridCanvas(Grid)
+            local Count = GridTileCounts[Grid] or 0
+            local RowCount = MathFloor((Count + GridColumns - 1) / GridColumns)
+            local ContentHeight = RowCount > 0 and (GridInset * 2 + RowCount * TileSize + (RowCount - 1) * GridGap) or 0
+
+            Grid.CanvasSize = UDim2New(0, 0, 0, MathMax(ContentHeight, MathFloor(Grid.AbsoluteSize.Y)))
+        end
+
+        local function ClearGrid(Grid)
+            GridTileCounts[Grid] = 0
+
+            for _, Child in Grid:GetChildren() do
+                if Child:IsA("GuiObject") then
+                    Child:Destroy()
+                end
+            end
+        end
+
+        local function QueryMatches(Query, Values)
+            Query = StringLower(tostring(Query or ""))
+
+            if Query == "" then
+                return true
+            end
+
+            for _, Value in Values do
+                if StringFind(StringLower(tostring(Value or "")), Query, 1, true) then
+                    return true
+                end
+            end
+
+            return false
+        end
+
+        local function CreateTile(Grid, Index, Selected)
+            local BaseColor = Library.Theme.Element
+            local StrokeColor = Library:GetLighterColor(Library.Theme.Border, 2.4)
+
+            local Tile = Instances:Create("TextButton", {
+                Parent = Grid,
+                Name = "\0",
+                Text = "",
+                AutoButtonColor = false,
+                BorderSizePixel = 0,
+                ClipsDescendants = true,
+                Position = UDim2FromOffset(GridInset + ((Index - 1) % GridColumns) * (TileSize + GridGap), GridInset + MathFloor((Index - 1) / GridColumns) * (TileSize + GridGap)),
+                Size = UDim2FromOffset(TileSize, TileSize),
+                BackgroundColor3 = BaseColor,
+                ZIndex = 5
+            })
+
+            local TileStroke = Instances:Create("UIStroke", {
+                Parent = Tile.Instance,
+                Name = "\0",
+                Color = StrokeColor,
+                Transparency = Selected and 0 or 0.22,
+                Thickness = Selected and 2.5 or 2,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            })
+
+            Tile.Instance.MouseEnter:Connect(function()
+                Tile.Instance.BackgroundColor3 = Library:GetLighterColor(BaseColor, 1.18)
+
+                if not Selected then
+                    TileStroke.Instance.Transparency = 0.02
+                end
+            end)
+
+            Tile.Instance.MouseLeave:Connect(function()
+                Tile.Instance.BackgroundColor3 = BaseColor
+
+                if not Selected then
+                    TileStroke.Instance.Transparency = 0.22
+                end
+            end)
+
+            return Tile
+        end
+
+        local WeaponGrid
+        local CosmeticGrid
+
+        local function CreateIconLayer(Tile, Image)
+            local Window = Instances:Create("Frame", {
+                Parent = Tile.Instance,
+                Name = "\0",
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                ClipsDescendants = true,
+                AnchorPoint = Vector2New(0.5, 0),
+                Position = UDim2New(0.5, 0, 0, 2),
+                Size = UDim2New(1, -4, 0, TileSize - 20),
+                ZIndex = 6
+            })
+
+            Instances:Create("ImageLabel", {
+                Parent = Window.Instance,
+                Name = "\0",
+                Image = Image,
+                ScaleType = Enum.ScaleType.Fit,
+                BackgroundTransparency = 1,
+                AnchorPoint = Vector2New(0.5, 0.5),
+                Position = UDim2New(0.5, 0, 0.5, 0),
+                Size = UDim2New(1, 36, 1, 28),
+                ZIndex = 6
+            })
+
+            return Window
+        end
+
+        local function CreateWeaponTile(Entry, Index, Selected, Equipped, OnClick, OnRightClick)
+            local Tile = CreateTile(WeaponGrid, Index, Selected)
+
+            CreateIconLayer(Tile, Entry.Image and Entry.Image ~= "" and Library:ResolveIcon(Entry.Image) or "")
+
+            NewText({
+                Parent = Tile.Instance,
+                Name = "\0",
+                FontFace = Library.Font,
+                Text = tostring(Entry.Display or Entry.Name or ""),
+                TextColor3 = TitleTextColor,
+                TextSize = 10,
+                TextTruncate = Enum.TextTruncate.AtEnd,
+                TextXAlignment = Enum.TextXAlignment.Center,
+                BackgroundTransparency = 1,
+                Position = UDim2New(0, 0, 1, -14),
+                Size = UDim2New(1, -4, 0, 12),
+                ZIndex = 7
+            })
+
+            if Equipped then
+                local Dot = Instances:Create("Frame", {
+                    Parent = Tile.Instance,
+                    Name = "\0",
+                    AnchorPoint = Vector2New(1, 0),
+                    Position = UDim2New(1, -6, 0, 6),
+                    Size = UDim2FromOffset(6, 6),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = Library.Theme.Text,
+                    BackgroundTransparency = 0.3,
+                    ZIndex = 8
+                })
+
+                Instances:Create("UICorner", {
+                    Parent = Dot.Instance,
+                    Name = "\0",
+                    CornerRadius = UDimNew(1, 0)
+                })
+            end
+
+            -- tiles are recreated on every refresh, so they use raw signals instead of
+            -- Library connections/theme entries
+            if OnClick then
+                Tile.Instance.Activated:Connect(function()
+                    Library:SafeCall(OnClick, Entry)
+                end)
+            end
+
+            if OnRightClick then
+                local RightEvent = IsMobile and Tile.Instance.TouchLongPress or Tile.Instance.MouseButton2Click
+
+                RightEvent:Connect(function()
+                    Library:SafeCall(OnRightClick, Entry)
+                end)
+            end
+
+            return Tile
+        end
+
+        local function CreateSkinTile(Entry, Index, Selected, OnClick, OnRightClick)
+            local Tile = CreateTile(CosmeticGrid, Index, Selected)
+
+            if Entry.Glyph then
+                NewText({
+                    Parent = Tile.Instance,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    Text = Entry.Glyph,
+                    TextColor3 = HintColor,
+                    TextSize = 30,
+                    BackgroundTransparency = 1,
+                    Position = UDim2New(0, 0, 0, 2),
+                    Size = UDim2New(1, 0, 0, TileSize - 18),
+                    ZIndex = 6
+                })
+            else
+                CreateIconLayer(Tile, Entry.Image and Entry.Image ~= "" and Library:ResolveIcon(Entry.Image) or "")
+            end
+
+            NewText({
+                Parent = Tile.Instance,
+                Name = "\0",
+                FontFace = Library.Font,
+                Text = tostring(Entry.Display or Entry.Name or ""),
+                TextColor3 = TitleTextColor,
+                TextSize = 10,
+                TextTruncate = Enum.TextTruncate.AtEnd,
+                TextXAlignment = Enum.TextXAlignment.Center,
+                BackgroundTransparency = 1,
+                Position = UDim2New(0, 0, 1, -14),
+                Size = UDim2New(1, -4, 0, 12),
+                ZIndex = 7
+            })
+
+            if OnClick then
+                Tile.Instance.Activated:Connect(function()
+                    Library:SafeCall(OnClick, Entry)
+                end)
+            end
+
+            if OnRightClick then
+                local RightEvent = IsMobile and Tile.Instance.TouchLongPress or Tile.Instance.MouseButton2Click
+
+                RightEvent:Connect(function()
+                    Library:SafeCall(OnRightClick, Entry)
+                end)
+            end
+
+            return Tile
+        end
+
+        local WeaponSearchRow = NewRow(SearchHeight)
+
+        NewSearchBox(WeaponSearchRow.Instance, "Search weapons...", function(Text)
+            ChangerState.WeaponSearch = Text
+            Changer.Refresh()
+        end)
+
+        WeaponGrid = NewGridRow(GridHeight)
+
+        local CosmeticSearchRow = NewRow(SearchHeight)
+
+        NewSearchBox(CosmeticSearchRow.Instance, "Search skins...", function(Text)
+            ChangerState.CosmeticSearch = Text
+            Changer.Refresh()
+        end)
+
+        CosmeticGrid = NewGridRow(GridHeight)
+
+        function Changer:SetVisibility(Bool)
+            self.IsOpen = Bool == true
+            Root.Instance.Visible = self.IsOpen and Window.IsOpen ~= false
+
+            if self.IsOpen and self.Refresh then
+                task.defer(self.Refresh)
+            end
+        end
+
+        local OldSetOpen = Window.SetOpen
+
+        Window.SetOpen = function(Self, Bool)
+            OldSetOpen(Self, Bool)
+
+            if Root.Instance then
+                Root.Instance.Visible = (Bool == true) and Changer.IsOpen
+            end
+        end
+
+        local function ClosePanel()
+            Changer:SetVisibility(false)
+
+            if Changer.OnClose then
+                Library:SafeCall(Changer.OnClose)
+            end
+        end
+
+        CloseButton:Connect("MouseButton1Down", ClosePanel)
+
+        local HintRow = NewRow(HintRowHeight)
+
+        NewText({
+            Parent = HintRow.Instance,
+            Name = "\0",
+            FontFace = Library.Font,
+            Text = "Right click a weapon to clear its cosmetics.",
+            TextColor3 = HintColor,
+            TextSize = 13,
+            TextXAlignment = Enum.TextXAlignment.Center,
+            BackgroundTransparency = 1,
+            Size = UDim2New(1, 0, 1, 0),
+            ZIndex = 4
+        }):AddToTheme({TextColor3 = "Inactive Text"})
+
+        local FooterRow = NewRow(ButtonRowHeight)
+
+        local ResetButton = NewLibraryButton(FooterRow.Instance, "Reset to defaults", function()
+            local Backend = getgenv().MidnightCosmeticBackend
+
+            if Backend and Backend.Reset then
+                Library:SafeCall(Backend.Reset)
+            end
+
+            ChangerState.SelectedWeapon = nil
+            ChangerState.SelectedCosmetic = nil
+            Changer.Refresh()
+        end)
+
+        ResetButton.Instance.Size = UDim2New(0.5, -3, 1, 0)
+
+        local FooterCloseButton = NewLibraryButton(FooterRow.Instance, "Close", ClosePanel)
+
+        FooterCloseButton.Instance.Position = UDim2New(0.5, 3, 0, 0)
+        FooterCloseButton.Instance.Size = UDim2New(0.5, -3, 1, 0)
+
+        local function Render()
+            if not Root.Instance or not Root.Instance.Parent then
+                return
+            end
+
+            local Backend = getgenv().MidnightCosmeticBackend
+
+            ClearGrid(WeaponGrid)
+            ClearGrid(CosmeticGrid)
+
+            if not Backend then
+                GridTileCounts[WeaponGrid] = 0
+                GridTileCounts[CosmeticGrid] = 0
+
+                NewText({
+                    Parent = WeaponGrid,
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    Text = "Waiting for cosmetic backend...",
+                    TextColor3 = HintColor,
+                    TextSize = 13,
+                    BackgroundTransparency = 1,
+                    Size = UDim2New(1, 0, 0, 20),
+                    ZIndex = 5
+                })
+
+                UpdateGridCanvas(WeaponGrid)
+                UpdateGridCanvas(CosmeticGrid)
+
+                return
+            end
+
+            local Weapons = { }
+
+            if Backend.GetWeapons then
+                local Success, Result = pcall(Backend.GetWeapons)
+
+                if Success and type(Result) == "table" then
+                    Weapons = Result
+                end
+            end
+
+            local EquippedWeapons = { }
+
+            if Backend.GetEquipData then
+                local Success, Result = pcall(Backend.GetEquipData)
+
+                if Success and type(Result) == "table" then
+                    for Weapon, Categories in Result do
+                        if type(Categories) == "table" and next(Categories) then
+                            EquippedWeapons[Weapon] = true
+                        end
+                    end
+                end
+            end
+
+            if not ChangerState.SelectedWeapon and Weapons[1] then
+                ChangerState.SelectedWeapon = Weapons[1].Name
+            end
+
+            local WeaponIndex = 0
+
+            for _, Entry in Weapons do
+                if not Library:IsJunkCosmetic(Entry.Name, Entry.Display) and QueryMatches(ChangerState.WeaponSearch, { Entry.Name, Entry.Display }) then
+                    WeaponIndex += 1
+
+                    CreateWeaponTile(Entry, WeaponIndex, ChangerState.SelectedWeapon == Entry.Name, EquippedWeapons[Entry.Name] == true, function(Chosen)
+                        ChangerState.SelectedWeapon = Chosen.Name
+                        ChangerState.SelectedCosmetic = nil
+                        Changer.Refresh()
+                    end, function(Chosen)
+                        ChangerState.SelectedWeapon = Chosen.Name
+
+                        for _, Mode in ChangerState.Modes do
+                            Library:SafeCall(Backend.Apply, Chosen.Name, "", Mode)
+                        end
+
+                        ChangerState.SelectedCosmetic = nil
+                        Changer.Refresh()
+                    end)
+                end
+            end
+
+            GridTileCounts[WeaponGrid] = WeaponIndex
+
+            local Cosmetics = { }
+
+            if Backend.GetCosmetics then
+                local Success, Result = pcall(Backend.GetCosmetics, ChangerState.Mode, ChangerState.SelectedWeapon)
+
+                if Success and type(Result) == "table" then
+                    Cosmetics = Result
+                end
+            end
+
+            local EquippedName = Backend.State and Backend.State.SelectedCosmetic
+            ChangerState.SelectedCosmetic = EquippedName or "__stock"
+
+            local CurrentWeapon
+
+            for _, Entry in Weapons do
+                if Entry.Name == ChangerState.SelectedWeapon then
+                    CurrentWeapon = Entry
+                    break
+                end
+            end
+
+            local StockImage = CurrentWeapon and CurrentWeapon.Image
+
+            local Specials = {
+                { Name = "__random", Display = "Random", Glyph = "?" },
+                { Name = "__stock", Display = "Stock", Image = StockImage, Glyph = (not StockImage or StockImage == "") and "–" or nil }
+            }
+
+            local CosmeticIndex = 0
+
+            for _, Entry in Specials do
+                CosmeticIndex += 1
+
+                CreateSkinTile(Entry, CosmeticIndex, ChangerState.SelectedCosmetic == Entry.Name, function(Chosen)
+                    local Name = Chosen.Name == "__stock" and "" or Chosen.Name
+
+                    ChangerState.SelectedCosmetic = Chosen.Name
+                    Library:SafeCall(Backend.Apply, ChangerState.SelectedWeapon, Name, ChangerState.Mode)
+                    Changer.Refresh()
+                end)
+            end
+
+            for _, Entry in Cosmetics do
+                if not Library:IsJunkCosmetic(Entry.Name, Entry.Display) and QueryMatches(ChangerState.CosmeticSearch, { Entry.Name, Entry.Display }) then
+                    CosmeticIndex += 1
+
+                    CreateSkinTile(Entry, CosmeticIndex, ChangerState.SelectedCosmetic == Entry.Name, function(Chosen)
+                        ChangerState.SelectedCosmetic = Chosen.Name
+                        Library:SafeCall(Backend.Apply, ChangerState.SelectedWeapon, Chosen.Name, ChangerState.Mode)
+                        Changer.Refresh()
+                    end, Backend.ToggleFavorite and function(Chosen)
+                        Library:SafeCall(Backend.ToggleFavorite, ChangerState.SelectedWeapon or Chosen.ItemName, Chosen.Name)
+                        Changer.Refresh()
+                    end or nil)
+                end
+            end
+
+            GridTileCounts[CosmeticGrid] = CosmeticIndex
+
+            UpdateGridCanvas(WeaponGrid)
+            UpdateGridCanvas(CosmeticGrid)
+        end
+
+        local RefreshQueued = false
+
+        function Changer.Refresh()
+            if RefreshQueued then
+                return
+            end
+
+            RefreshQueued = true
+
+            task.defer(function()
+                RefreshQueued = false
+                Render()
+            end)
+        end
+
+        local PanelMargin = 16
+
+        local function ClampPanelPosition(X, Y)
+            local Viewport = Camera.ViewportSize
+            local MaxX = MathMax(Viewport.X - PanelWidth - PanelMargin, PanelMargin)
+            local MaxY = MathMax(Viewport.Y - PanelHeight - PanelMargin, PanelMargin)
+
+            return math.clamp(X, PanelMargin, MaxX), math.clamp(Y, PanelMargin, MaxY)
+        end
+
+        local function PlaceNextToWindow()
+            local Viewport = Camera.ViewportSize
+            local MainFrame = Window.Items["MainFrame"].Instance
+            local X = (Viewport.X - PanelWidth) / 2
+            local Y = (Viewport.Y - PanelHeight) / 2
+
+            if MainFrame and MainFrame.AbsoluteSize.X > 0 and MainFrame.AbsoluteSize.Y > 0 then
+                local MainPosition = MainFrame.AbsolutePosition
+                local MainSize = MainFrame.AbsoluteSize
+
+                X = MainPosition.X + MainSize.X + 10
+                Y = MainPosition.Y
+
+                if X > Viewport.X - PanelWidth - PanelMargin then
+                    X = MainPosition.X - PanelWidth - 10
+                end
+            end
+
+            X, Y = ClampPanelPosition(X, Y)
+
+            Root.Instance.Position = UDim2New(0, X, 0, Y)
+        end
+
+        task.defer(function()
+            PlaceNextToWindow()
+
+            local MainFrame = Window.Items["MainFrame"].Instance
+
+            if not MainFrame then
+                return
+            end
+
+            local DraggingWindow = false
+            local DragStartMouse = nil
+            local DragStartPanel = nil
+
+            Library:Connect(MainFrame.InputBegan, function(Input)
+                if Input.UserInputType == Enum.UserInputType.MouseButton1
+                or Input.UserInputType == Enum.UserInputType.Touch then
+                    DraggingWindow = true
+                    DragStartMouse = Input.Position
+                    DragStartPanel = Root.Instance.Position
+                end
+            end)
+
+            Library:Connect(UserInputService.InputEnded, function(Input)
+                if Input.UserInputType == Enum.UserInputType.MouseButton1
+                or Input.UserInputType == Enum.UserInputType.Touch then
+                    DraggingWindow = false
+                    DragStartMouse = nil
+                    DragStartPanel = nil
+                end
+            end)
+
+            Library:Connect(UserInputService.InputChanged, function(Input)
+                if not DraggingWindow or not DragStartMouse or not DragStartPanel then
+                    return
+                end
+
+                if Input.UserInputType ~= Enum.UserInputType.MouseMovement
+                and Input.UserInputType ~= Enum.UserInputType.Touch then
+                    return
+                end
+
+                local Delta = Input.Position - DragStartMouse
+                local X, Y = ClampPanelPosition(DragStartPanel.X.Offset + Delta.X, DragStartPanel.Y.Offset + Delta.Y)
+
+                Root:Tween(TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                    Position = UDim2New(DragStartPanel.X.Scale, X, DragStartPanel.Y.Scale, Y)
+                })
+            end)
+        end)
+
+        local HadBackend = getgenv().MidnightCosmeticBackend ~= nil
+
+        Library:Thread(function()
+            while Root.Instance and Root.Instance.Parent do
+                task.wait(0.4)
+
+                local HasBackend = getgenv().MidnightCosmeticBackend ~= nil
+
+                if HasBackend ~= HadBackend then
+                    HadBackend = HasBackend
+                    Changer.Refresh()
+                end
+            end
+        end)
+
+        Changer:SetVisibility(true)
+
+        return Changer
+    end
+
+    Library.AttachCosmeticChanger = function(self, HostPage)
+        if not HostPage or not HostPage.Window then
+            return nil
+        end
+
+        local Changer = Library.Pages.CosmeticChanger(HostPage.Window, { })
+
+        if Changer then
+            HostPage.Changer = Changer
+        end
+
+        return Changer
+    end
 
     local Components = { } do
         Components.Toggle = function(Data)
@@ -6794,8 +7807,9 @@ end
                     local Equipped = Equipment()
 
                     for Name, Data in Cosmetics do
-                        if not IsBanned(Name) and Data.Type == "Weapon" then
-                            local Display = DisplayNameOf(Name, Data)
+                        local Display = DisplayNameOf(Name, Data)
+
+                        if not IsBanned(Name) and not Library:IsJunkCosmetic(Name, Display) and Data.Type == "Weapon" then
                             local Image = IconFor(Data, ItmLib.Items and ItmLib.Items[Name] and ItmLib.Items[Name].Image, Name)
 
                             if Equipped[Name] and Equipped[Name].Skin then
@@ -6811,7 +7825,7 @@ end
                     if #State.Weapons == 0 and ItmLib.ItemsAlphabetized then
                         for _, Name in ItmLib.ItemsAlphabetized do
                             local Data = ItmLib.Items and ItmLib.Items[Name]
-                            if Data and not IsBanned(Name) then
+                            if Data and not IsBanned(Name) and not Library:IsJunkCosmetic(Name, DisplayNameOf(Name, Data)) then
                                 local Display = DisplayNameOf(Name, Data)
                                 local Image = IconFor(Data, nil, Name)
 
@@ -6830,7 +7844,7 @@ end
 
                     if State.SelectedWeapon then
                         for Name, Data in Cosmetics do
-                            if not IsBanned(Name) and Data.Type == State.Mode and MatchesWeapon(Data, State.SelectedWeapon) then
+                            if not IsBanned(Name) and not Library:IsJunkCosmetic(Name, DisplayNameOf(Name, Data)) and Data.Type == State.Mode and MatchesWeapon(Data, State.SelectedWeapon) then
                                 TableInsert(State.Cosmetics, {
                                     Name = Name,
                                     Display = DisplayNameOf(Name, Data),
@@ -6929,10 +7943,26 @@ end
                     end,
 
                     Reset = function()
+                        local ResetKeys = { }
+
+                        for Weapon, Categories in Equipment() do
+                            if type(Categories) == "table" then
+                                for Category in Categories do
+                                    TableInsert(ResetKeys, { Weapon = Weapon, Category = Category })
+                                end
+                            end
+                        end
+
                         table.clear(Equipment())
                         table.clear(Favorites())
                         table.clear(AppliedKeys)
                         table.clear(PendingRestore)
+
+                        for _, Key in ResetKeys do
+                            if getgenv().ForceCosmeticUpdate then
+                                pcall(getgenv().ForceCosmeticUpdate, Key.Weapon, Key.Category)
+                            end
+                        end
 
                         Replicate("WeaponInventory", "CosmeticInventory", "FavoritedCosmetics")
                         SaveConfig()
@@ -7061,578 +8091,6 @@ end
             end)
         end
 
-        Library.AttachCosmeticChanger = function(self, HostPage)
-            if not HostPage or not HostPage.ColumnsData or not HostPage.ColumnsData[1] then
-                return
-            end
-
-            Library:StartCosmeticBackend()
-
-                local UDim2FromOffset = UDim2.fromOffset
-
-                local ChangerState = {
-                    Mode = "Skin",
-                    Modes = { "Skin", "Wrap", "Charm", "Finisher" },
-                    WeaponSearch = "",
-                    CosmeticSearch = "",
-                    SelectedWeapon = nil,
-                    SelectedCosmetic = nil
-                }
-
-                local Changer = { State = ChangerState }
-                HostPage.Changer = Changer
-
-                local TitleTextColor = Library.Theme.Text
-                local HintColor = Library.Theme["Inactive Text"]
-
-                local function NewText(Properties)
-                    return Instances:Create("TextLabel", Properties)
-                end
-
-                local function NewSearchBox(Properties)
-                    local Box = Instances:Create("TextBox", Properties)
-                    Instances:Create("UICorner", {
-                        Parent = Box.Instance,
-                        Name = "\0",
-                        CornerRadius = UDimNew(0, 5)
-                    })
-                    Instances:Create("UIPadding", {
-                        Parent = Box.Instance,
-                        Name = "\0",
-                        PaddingLeft = UDimNew(0, 8)
-                    })
-                    return Box
-                end
-
-                local GridTileCounts = { }
-
-                local TileTargetWidth = 150
-                local TileMinWidth = 112
-
-                local function GetGridMetrics(Grid)
-                    local UsableWidth = MathFloor(Grid.AbsoluteSize.X) - 4
-                    if UsableWidth < TileTargetWidth then
-                        UsableWidth = TileTargetWidth
-                    end
-
-                    local ColumnCount = MathMax(1, MathMin(6, MathFloor(UsableWidth / TileMinWidth)))
-                    local TileWidth = MathFloor((UsableWidth - (ColumnCount - 1) * 6) / ColumnCount)
-
-                    return {
-                        ColumnCount = ColumnCount,
-                        TileWidth = TileWidth,
-                        TileHeight = MathFloor(TileWidth * 1.22)
-                    }
-                end
-
-                local function UpdateGridCanvas(Grid)
-                    local Metrics = GetGridMetrics(Grid)
-                    local Count = GridTileCounts[Grid] or 0
-                    local RowCount = MathFloor((Count + Metrics.ColumnCount - 1) / Metrics.ColumnCount)
-                    local CanvasHeight = RowCount * (Metrics.TileHeight + 6) + 6
-
-                    Grid.CanvasSize = UDim2New(0, 0, 0, MathMax(CanvasHeight, MathFloor(Grid.AbsoluteSize.Y)))
-                end
-
-                local CardHeight = 496
-
-                local ChangerItem = Instances:Create("Frame", {
-                    Parent = HostPage.ColumnsData[1].Instance,
-                    Name = "\0",
-                    BorderSizePixel = 0,
-                    Size = UDim2New(1, 0, 0, CardHeight),
-                    ZIndex = 2,
-                    BackgroundColor3 = FromRGB(22, 25, 29)
-                })  ChangerItem:AddToTheme({BackgroundColor3 = "Inline"})
-
-                ChangerItem:Border()
-
-                Instances:Create("UICorner", {
-                    Parent = ChangerItem.Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 5)
-                })
-
-                local CosmeticItem = Instances:Create("Frame", {
-                    Parent = (HostPage.ColumnsData[2] or HostPage.ColumnsData[1]).Instance,
-                    Name = "\0",
-                    BorderSizePixel = 0,
-                    Size = UDim2New(1, 0, 0, CardHeight),
-                    ZIndex = 2,
-                    BackgroundColor3 = FromRGB(22, 25, 29)
-                })  CosmeticItem:AddToTheme({BackgroundColor3 = "Inline"})
-
-                CosmeticItem:Border()
-
-                Instances:Create("UICorner", {
-                    Parent = CosmeticItem.Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 5)
-                })
-
-                local Cards = { ChangerItem.Instance, CosmeticItem.Instance }
-
-                NewText({
-                    Parent = ChangerItem.Instance,
-                    Name = "\0",
-                    FontFace = Library.Font,
-                    Text = "Select Weapon",
-                    TextColor3 = TitleTextColor,
-                    TextSize = 15,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    BackgroundTransparency = 1,
-                    Position = UDim2FromOffset(10, 10),
-                    Size = UDim2New(1, -20, 0, 22),
-                    ZIndex = 3
-                }):AddToTheme({TextColor3 = "Text"})
-
-                NewText({
-                    Parent = CosmeticItem.Instance,
-                    Name = "\0",
-                    FontFace = Library.Font,
-                    Text = "Select Weapon Skin",
-                    TextColor3 = TitleTextColor,
-                    TextSize = 15,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    BackgroundTransparency = 1,
-                    Position = UDim2FromOffset(10, 10),
-                    Size = UDim2New(1, -20, 0, 22),
-                    ZIndex = 3
-                }):AddToTheme({TextColor3 = "Text"})
-
-                local ModeRow = Instances:Create("Frame", {
-                    Parent = CosmeticItem.Instance,
-                    Name = "\0",
-                    BackgroundTransparency = 1,
-                    Position = UDim2FromOffset(10, 426),
-                    Size = UDim2New(1, -20, 0, 30),
-                    ZIndex = 3
-                })
-
-                Instances:Create("UIListLayout", {
-                    Parent = ModeRow.Instance,
-                    Name = "\0",
-                    FillDirection = Enum.FillDirection.Horizontal,
-                    HorizontalFlex = Enum.UIFlexAlignment.Fill,
-                    Padding = UDimNew(0, 4),
-                    SortOrder = Enum.SortOrder.LayoutOrder
-                })
-
-                local ModeButtons = { }
-
-                local function RefreshModeButtons()
-                    for _, ButtonData in ModeButtons do
-                        local IsActive = ButtonData.Mode == ChangerState.Mode
-                        ButtonData.Instance.BackgroundColor3 = IsActive and Library.Theme.Accent or Library.Theme.Element
-                        ButtonData.Instance.TextColor3 = IsActive and TitleTextColor or HintColor
-                    end
-                end
-
-                for Index, Mode in ChangerState.Modes do
-                    local ModeButton = Instances:Create("TextButton", {
-                        Parent = ModeRow.Instance,
-                        Name = "\0",
-                        FontFace = Library.Font,
-                        Text = Mode,
-                        TextSize = 15,
-                        AutoButtonColor = false,
-                        BorderSizePixel = 0,
-                        Size = UDim2New(0, 0, 1, 0),
-                        BackgroundColor3 = FromRGB(34, 39, 45)
-                    })
-
-                    Instances:Create("UICorner", {
-                        Parent = ModeButton.Instance,
-                        Name = "\0",
-                        CornerRadius = UDimNew(0, 5)
-                    })
-
-                    ModeButton:AddToTheme({
-                        BackgroundColor3 = function()
-                            return ChangerState.Mode == Mode and Library.Theme.Accent or Library.Theme.Element
-                        end
-                    })
-
-                    TableInsert(ModeButtons, { Mode = Mode, Instance = ModeButton.Instance })
-
-                    ModeButton:Connect("MouseButton1Click", function()
-                        ChangerState.Mode = Mode
-                        ChangerState.SelectedCosmetic = nil
-                        RefreshModeButtons()
-                        Changer.Refresh()
-                    end)
-                end
-
-                RefreshModeButtons()
-
-                local function CreateGridSection(Card, Label, SearchKey, Placeholder, PositionY, GridHeight)
-                    local LabelWidth = MathMax(64, MathFloor(Card.AbsoluteSize.X * 0.24))
-                    local SearchHeight = 30
-
-                    NewText({
-                        Parent = Card,
-                        Name = "\0",
-                        FontFace = Library.Font,
-                        Text = Label,
-                        TextColor3 = HintColor,
-                        TextSize = 15,
-                        TextXAlignment = Enum.TextXAlignment.Left,
-                        BackgroundTransparency = 1,
-                        Position = UDim2FromOffset(10, PositionY),
-                        Size = UDim2FromOffset(LabelWidth, SearchHeight),
-                        ZIndex = 3
-                    }):AddToTheme({TextColor3 = "Inactive Text"})
-
-                    local Search = NewSearchBox({
-                        Parent = Card,
-                        Name = "\0",
-                        FontFace = Library.Font,
-                        PlaceholderText = Placeholder,
-                        PlaceholderColor3 = HintColor,
-                        Text = "",
-                        TextColor3 = TitleTextColor,
-                        TextSize = 15,
-                        TextXAlignment = Enum.TextXAlignment.Left,
-                        ClearTextOnFocus = false,
-                        MultiLine = false,
-                        BorderSizePixel = 0,
-                        Position = UDim2FromOffset(10 + LabelWidth + 6, PositionY),
-                        Size = UDim2New(1, -(26 + LabelWidth), 0, SearchHeight),
-                        BackgroundColor3 = FromRGB(34, 39, 45),
-                        ZIndex = 3
-                    })  Search:AddToTheme({BackgroundColor3 = "Element", TextColor3 = "Text", PlaceholderColor3 = "Inactive Text"})
-
-                    local Grid = Instances:Create("ScrollingFrame", {
-                        Parent = Card,
-                        Name = "\0",
-                        BorderSizePixel = 0,
-                        BackgroundTransparency = 1,
-                        ScrollBarThickness = 4,
-                        AutomaticCanvasSize = Enum.AutomaticSize.None,
-                        CanvasSize = UDim2New(0, 0, 0, 0),
-                        Position = UDim2FromOffset(10, PositionY + SearchHeight + 6),
-                        Size = UDim2New(1, -20, 0, GridHeight),
-                        BackgroundColor3 = FromRGB(0, 0, 0),
-                        ZIndex = 3
-                    })
-
-                    Grid:AddToTheme({ScrollBarImageColor3 = "Border"})
-
-                    Search.Instance:GetPropertyChangedSignal("Text"):Connect(function()
-                        ChangerState[SearchKey] = Search.Instance.Text
-                        Changer.Refresh()
-                    end)
-
-                    GridTileCounts[Grid.Instance] = 0
-
-                    return Grid
-                end
-
-                local WeaponGrid = CreateGridSection(ChangerItem.Instance, "Weapons", "WeaponSearch", "Search weapons...", 40, 372).Instance
-                local CosmeticGrid = CreateGridSection(CosmeticItem.Instance, "Skins", "CosmeticSearch", "Search skins...", 40, 342).Instance
-
-                local ResetButton = Instances:Create("TextButton", {
-                    Parent = ChangerItem.Instance,
-                    Name = "\0",
-                    FontFace = Library.Font,
-                    Text = "Reset to defaults",
-                    TextSize = 15,
-                    AutoButtonColor = false,
-                    BorderSizePixel = 0,
-                    Position = UDim2FromOffset(10, 456),
-                    Size = UDim2New(1, -20, 0, 30),
-                    BackgroundColor3 = FromRGB(34, 39, 45),
-                    ZIndex = 3
-                })  ResetButton:AddToTheme({BackgroundColor3 = "Element", TextColor3 = "Text"})
-
-                Instances:Create("UICorner", {
-                    Parent = ResetButton.Instance,
-                    Name = "\0",
-                    CornerRadius = UDimNew(0, 5)
-                })
-
-                ResetButton:Connect("MouseButton1Click", function()
-                    local Backend = getgenv().MidnightCosmeticBackend
-                    if Backend and Backend.Reset then
-                        Library:SafeCall(Backend.Reset)
-                    end
-                    ChangerState.SelectedWeapon = nil
-                    ChangerState.SelectedCosmetic = nil
-                    Changer.Refresh()
-                end)
-
-                NewText({
-                    Parent = CosmeticItem.Instance,
-                    Name = "\0",
-                    FontFace = Library.Font,
-                    Text = "",
-                    TextColor3 = HintColor,
-                    TextSize = 13,
-                    TextWrapped = true,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    BackgroundTransparency = 1,
-                    Position = UDim2FromOffset(10, 460),
-                    Size = UDim2New(1, -20, 0, 22),
-                    ZIndex = 3
-                }):AddToTheme({TextColor3 = "Inactive Text"})
-
-                local function ClearGrid(Grid)
-                    GridTileCounts[Grid] = 0
-
-                    for _, Child in Grid:GetChildren() do
-                        if Child:IsA("GuiObject") then
-                            Child:Destroy()
-                        end
-                    end
-                end
-
-                local function QueryMatches(Query, Values)
-                    Query = StringLower(tostring(Query or ""))
-                    if Query == "" then
-                        return true
-                    end
-
-                    for _, Value in Values do
-                        if StringFind(StringLower(tostring(Value or "")), Query, 1, true) then
-                            return true
-                        end
-                    end
-
-                    return false
-                end
-
-                local function CreateTile(Grid, Entry, Index, Selected, OnClick, OnRightClick)
-                    local Metrics = GetGridMetrics(Grid)
-                    local ColumnCount = Metrics.ColumnCount
-                    local TileWidth = Metrics.TileWidth
-                    local TileHeight = Metrics.TileHeight
-                    local IconHeight = MathFloor(TileHeight * 0.78)
-
-                    local Tile = Instances:Create("TextButton", {
-                        Parent = Grid,
-                        Name = "\0",
-                        Text = "",
-                        AutoButtonColor = false,
-                        BorderSizePixel = 0,
-                        ClipsDescendants = true,
-                        Position = UDim2FromOffset(((Index - 1) % ColumnCount) * (TileWidth + 6), MathFloor((Index - 1) / ColumnCount) * (TileHeight + 6)),
-                        Size = UDim2FromOffset(TileWidth, TileHeight),
-                        BackgroundColor3 = Selected and Library.Theme.Accent or Library.Theme.Element
-                    })
-
-                    Instances:Create("UICorner", {
-                        Parent = Tile.Instance,
-                        Name = "\0",
-                        CornerRadius = UDimNew(0, 6)
-                    })
-
-                    Instances:Create("ImageLabel", {
-                        Parent = Tile.Instance,
-                        Name = "\0",
-                        Image = Library:ResolveIcon(Entry.Image),
-                        ScaleType = Enum.ScaleType.Fit,
-                        BackgroundTransparency = 1,
-                        AnchorPoint = Vector2New(0.5, 0),
-                        Position = UDim2New(0.5, 0, 0, 4),
-                        Size = UDim2FromOffset(MathFloor(TileWidth * 0.98), IconHeight),
-                        ZIndex = 4
-                    })
-
-                    Instances:Create("TextLabel", {
-                        Parent = Tile.Instance,
-                        Name = "\0",
-                        FontFace = Library.Font,
-                        Text = tostring(Entry.Display or Entry.Name or ""),
-                        TextColor3 = TitleTextColor,
-                        TextSize = 14,
-                        TextWrapped = true,
-                        BackgroundTransparency = 1,
-                        Position = UDim2FromOffset(5, IconHeight + 6),
-                        Size = UDim2New(1, -10, 0, TileHeight - IconHeight - 10),
-                        ZIndex = 4
-                    })
-
-                    if Entry.Favorited then
-                        Instances:Create("ImageLabel", {
-                            Parent = Tile.Instance,
-                            Name = "\0",
-                            Image = "rbxassetid://9080568477801",
-                            ScaleType = Enum.ScaleType.Fit,
-                            BackgroundTransparency = 1,
-                            Position = UDim2FromOffset(TileWidth - 33, 8),
-                            Size = UDim2FromOffset(24, 24),
-                            ZIndex = 5
-                        })
-                    end
-
-                    -- tiles are recreated on every refresh, so they use raw signals instead of
-                    -- Library connections/theme entries
-                    if OnClick then
-                        Tile.Instance.Activated:Connect(function()
-                            Library:SafeCall(OnClick, Entry)
-                        end)
-                    end
-
-                    if OnRightClick then
-                        local RightEvent = IsMobile and Tile.Instance.TouchLongPress or Tile.Instance.MouseButton2Click
-
-                        RightEvent:Connect(function()
-                            Library:SafeCall(OnRightClick, Entry)
-                        end)
-                    end
-
-                    return Tile
-                end
-
-                local function Render()
-                    local Backend = getgenv().MidnightCosmeticBackend
-
-                    ClearGrid(WeaponGrid)
-                    ClearGrid(CosmeticGrid)
-
-                    if not Backend then
-                        NewText({
-                            Parent = WeaponGrid,
-                            Name = "\0",
-                            FontFace = Library.Font,
-                            Text = "Waiting for cosmetic backend...",
-                            TextColor3 = HintColor,
-                            TextSize = 14,
-                            BackgroundTransparency = 1,
-                            Size = UDim2New(1, 0, 0, 20),
-                            ZIndex = 4
-                        })
-                        UpdateGridCanvas(WeaponGrid)
-                        UpdateGridCanvas(CosmeticGrid)
-                        return
-                    end
-
-                    local Weapons = { }
-                    if Backend.GetWeapons then
-                        local Success, Result = pcall(Backend.GetWeapons)
-                        if Success and type(Result) == "table" then
-                            Weapons = Result
-                        end
-                    end
-
-                    if not ChangerState.SelectedWeapon and Weapons[1] then
-                        ChangerState.SelectedWeapon = Weapons[1].Name
-                    end
-
-                    local WeaponIndex = 0
-                    for _, Entry in Weapons do
-                        if QueryMatches(ChangerState.WeaponSearch, { Entry.Name, Entry.Display }) then
-                            WeaponIndex += 1
-                            CreateTile(WeaponGrid, Entry, WeaponIndex, ChangerState.SelectedWeapon == Entry.Name, function(Chosen)
-                                ChangerState.SelectedWeapon = Chosen.Name
-                                ChangerState.SelectedCosmetic = nil
-                                Changer.Refresh()
-                            end, function(Chosen)
-                                ChangerState.SelectedWeapon = Chosen.Name
-                                if Backend.Apply then
-                                    Library:SafeCall(Backend.Apply, Chosen.Name, ChangerState.SelectedCosmetic, ChangerState.Mode)
-                                end
-                                Changer.Refresh()
-                            end)
-                        end
-                    end
-
-                    GridTileCounts[WeaponGrid] = WeaponIndex
-
-                    local RandomEntry = { Name = "__random", Display = "Random", Image = "rbxassetid://132973552546079" }
-                    CreateTile(CosmeticGrid, RandomEntry, 1, ChangerState.SelectedCosmetic == "__random", function()
-                        ChangerState.SelectedCosmetic = "__random"
-                        if ChangerState.SelectedWeapon and Backend.Apply then
-                            Library:SafeCall(Backend.Apply, ChangerState.SelectedWeapon, "__random", ChangerState.Mode)
-                        end
-                        Changer.Refresh()
-                    end)
-
-                    local Cosmetics = { }
-                    if Backend.GetCosmetics then
-                        local Success, Result = pcall(Backend.GetCosmetics, ChangerState.Mode, ChangerState.SelectedWeapon)
-                        if Success and type(Result) == "table" then
-                            Cosmetics = Result
-                        end
-                    end
-
-                    local CosmeticIndex = 1
-                    for _, Entry in Cosmetics do
-                        if QueryMatches(ChangerState.CosmeticSearch, { Entry.Name, Entry.Display }) then
-                            CosmeticIndex += 1
-                            CreateTile(CosmeticGrid, Entry, CosmeticIndex, ChangerState.SelectedCosmetic == Entry.Name, function(Chosen)
-                                ChangerState.SelectedCosmetic = Chosen.Name
-                                if ChangerState.SelectedWeapon and Backend.Apply then
-                                    Library:SafeCall(Backend.Apply, ChangerState.SelectedWeapon, Chosen.Name, ChangerState.Mode)
-                                end
-                                Changer.Refresh()
-                            end, Backend.ToggleFavorite and function(Chosen)
-                                Library:SafeCall(Backend.ToggleFavorite, ChangerState.SelectedWeapon or Chosen.ItemName, Chosen.Name)
-                                Changer.Refresh()
-                            end or nil)
-                        end
-                    end
-
-                    GridTileCounts[CosmeticGrid] = CosmeticIndex
-
-                    UpdateGridCanvas(WeaponGrid)
-                    UpdateGridCanvas(CosmeticGrid)
-                end
-
-                local RefreshQueued = false
-
-                function Changer.Refresh()
-                    if RefreshQueued then
-                        return
-                    end
-
-                    RefreshQueued = true
-
-                    task.defer(function()
-                        RefreshQueued = false
-                        Render()
-                    end)
-                end
-
-                local IsHiddenByUser = false
-
-                Changer.SetVisible = function(Visible)
-                    IsHiddenByUser = Visible ~= true
-
-                    for _, Card in Cards do
-                        Card.Visible = Visible == true
-                    end
-                end
-
-                for _, Card in Cards do
-                    Card.Visible = false
-                end
-
-                local WasActive = false
-                local HadBackend = false
-
-                Library:Thread(function()
-                    while ChangerItem.Instance and ChangerItem.Instance.Parent do
-                        task.wait(0.25)
-
-                        local IsActive = HostPage.Active == true and not IsHiddenByUser
-                        local HasBackend = getgenv().MidnightCosmeticBackend ~= nil
-
-                        for _, Card in Cards do
-                            Card.Visible = IsActive
-                        end
-
-                        if IsActive and (IsActive ~= WasActive or HasBackend ~= HadBackend) then
-                            Changer.Refresh()
-                        end
-
-                        WasActive = IsActive
-                        HadBackend = HasBackend
-                    end
-                end)
-
-            return HostPage.Changer
-        end
 
         Library.Page = function(self, Data)
             Data = Data or { }
@@ -10688,7 +11146,7 @@ end
                 Textbox.Value = Value
                 Library.Flags[Textbox.Flag] = Value
 
-                Items["Input"]:ChangeItemTheme({TextColor3 = "Text", PlaceholderColor3 = "Text Inactive"})
+                Items["Input"]:ChangeItemTheme({TextColor3 = "Text", PlaceholderColor3 = "Inactive Text"})
                 Items["Input"]:Tween(nil, {TextColor3 = Library.Theme.Text})
 
                 if Textbox.Callback then
@@ -10720,7 +11178,7 @@ end
             TableInsert(PageSearchData, SearchData)
 
             Items["Input"]:Connect("Focused", function()
-                Items["Input"]:ChangeItemTheme({TextColor3 = "Accent", PlaceholderColor3 = "Text Inactive"})
+                Items["Input"]:ChangeItemTheme({TextColor3 = "Accent", PlaceholderColor3 = "Inactive Text"})
                 Items["Input"]:Tween(nil, {TextColor3 = Library.Theme.Accent})
             end)
 
